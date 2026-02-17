@@ -1,18 +1,23 @@
 {
   "name": "side-cart",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "description": "A lightweight, accessible WooCommerce side-cart drawer.",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "lint:js": "wp-scripts lint-js src/",
+    "lint:css": "wp-scripts lint-style src/"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^30.0.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/patrik-setterberg/side-cart.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Patrik Setterberg",
+  "license": "GPL-2.0-or-later",
   "bugs": {
     "url": "https://github.com/patrik-setterberg/side-cart/issues"
   },
