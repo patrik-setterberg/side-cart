@@ -101,16 +101,19 @@ side-cart/
 
 - [ ] `class-cart-renderer.php` — hooks into `wp_footer` to output the drawer
 - [ ] `wp_interactivity_state('side-cart', [...])` — initialize state server-side with data from `WC()->cart`:
-  - `items` (key, name, quantity, price, thumbnail URL, permalink, max quantity)
+  - `items` (key, name, quantity, price, thumbnail URL, permalink, `maxQty` — see note below)
   - `totalItems` (int)
   - `subtotal` (formatted string)
+  - `cartTotal` (float — raw numeric total for free shipping threshold comparison)
   - `currency` (symbol)
+  - `freeShippingThreshold` (float|null — from WC free shipping method `min_amount`; null if not configured)
   - `isOpen` (false)
   - `isLoading` (false)
   - `cartUrl`, `checkoutUrl`
   - `storeApiNonce` (from WC Store API)
   - `storeApiBase` (rest_url path)
 - [ ] Templates use semantic HTML with Interactivity API directives
+- [ ] **`maxQty` source:** read from `item.quantity_limits.maximum` in the WC Store API cart response. WooCommerce derives this automatically from stock level, backorder settings, and per-product quantity rules. Map it directly onto each item in state. If `maximum` is `null` (no stock limit — e.g. digital products or backorders enabled), store `null` and omit the `max` attribute from the quantity input entirely.
 
 #### 2b. Drawer Template (`templates/cart-drawer.php`)
 
@@ -281,6 +284,8 @@ Registered via `class-trigger-shortcode.php`. Renders the same shared trigger te
 
 Admins enter a CSS selector (e.g. `.my-cart-btn, #header-cart-link`) in the General settings tab. The frontend JS attaches click listeners to all matching elements. If a matched element contains a child with class `scrt-badge` (or `data-scrt-badge`), the badge count is injected into it.
 
+**Badge count wiring:** The trigger template uses the shared `side-cart` Interactivity API namespace (`data-wp-interactive="side-cart"`). This means any trigger rendered by the block, shortcode, or custom selector shares the same store state. The badge element binds directly to `state.badgeCount` and `state.hasItems` via `data-wp-text` and `data-wp-bind--hidden` — no separate observer or secondary initialisation needed. Multiple triggers on the same page all update simultaneously because they share the same namespace.
+
 **Shared trigger template (`templates/cart-trigger.php`):**
 
 ```html
@@ -353,6 +358,18 @@ const { state } = store("side-cart", {
     storeApiBase: "",
     customTriggerSelector: "", // CSS selector from admin setting
     toasts: [], // { id, message, type: 'success'|'info'|'error', visible }
+    lastError: null, // set on failed Store API calls, cleared on next successful action
+    freeShippingThreshold: null, // set server-side from WC free shipping min_amount; null if no method configured
+
+    get freeShippingRemaining() {
+      if ( ! state.freeShippingThreshold ) return null;
+      return Math.max( 0, state.freeShippingThreshold - parseFloat( state.cartTotal ) );
+    },
+    get freeShippingPercent() {
+      if ( ! state.freeShippingThreshold ) return 0;
+      return Math.min( 100, ( parseFloat( state.cartTotal ) / state.freeShippingThreshold ) * 100 );
+    },
+    appliedCoupons: [], // array of coupon code strings currently applied to the cart
 
     get hasItems() {
       return state.totalItems > 0;
@@ -389,6 +406,13 @@ const { state } = store("side-cart", {
 
     *updateQuantity() {
       /* POST /wc/store/v1/cart/update-item */
+      /* On success: update state, clear lastError */
+      /* On stock conflict (400/409): show toast with API message, snap quantity back to
+         item.quantity_limits.maximum, re-fetch cart to sync state */
+      /* On network failure (fetch throws): show toast "Couldn't connect. Please try again.",
+         revert quantity input to previous value */
+      /* On generic API error (5xx): show toast "Something went wrong. Please refresh and try again." */
+      /* Always: set lastError on failure, set isLoading = false */
     },
     *increaseQuantity() {
       /* +1 then call updateQuantity */
@@ -398,6 +422,17 @@ const { state } = store("side-cart", {
     },
     *refreshCart() {
       /* GET /wc/store/v1/cart, update full state */
+      /* On item 404 (item key no longer valid): show toast "One item is no longer available
+         and was removed from your cart.", then apply updated cart state */
+    },
+    *applyCoupon() {
+      /* POST /wc/store/v1/cart/apply-coupon { code } */
+      /* On success: refresh cart state, show success toast */
+      /* On invalid coupon (400): show error toast with API message */
+    },
+    *removeCoupon() {
+      /* POST /wc/store/v1/cart/remove-coupon { code } */
+      /* On success: refresh cart state */
     },
     showToast({ message, type = "success" }) {
       /* push to state.toasts with unique id, auto-dismiss after ~3s */
@@ -437,6 +472,7 @@ const response = yield fetch(`${state.storeApiBase}cart/remove-item`, {
 });
 const cart = yield response.json();
 // Map cart response to state.items, state.totalItems, state.subtotal
+// For each item: maxQty = item.quantity_limits.maximum ?? null
 ```
 
 **WooCommerce event integration:**
@@ -671,6 +707,43 @@ $defaults = [
   'badge_count_mode'     => 'total',        // total (sum of quantities) | unique (distinct line items)
   'custom_trigger_selector' => '',          // CSS selector for custom trigger elements
 
+  // Drawer Header
+  'show_drawer_heading'  => true,
+  'drawer_heading_text'  => 'Your Cart',
+
+  // Drawer Body
+  'show_free_shipping_bar'    => true,           // hidden automatically if no WC free shipping method configured
+  'free_shipping_message'     => "You're {amount} away from free shipping!",
+  'free_shipping_success_message' => "You've unlocked free shipping!",
+  'show_empty_state_icon'  => true,
+  'empty_state_message'    => 'Your cart is empty.',
+
+  // Cart Item
+  'show_item_image'      => true,
+  'show_item_name'       => true,
+  'show_item_sku'        => false,
+  'show_item_price'      => true,
+  'item_price_mode'      => 'individual',   // individual | line_total (price × quantity)
+  'show_item_variation'  => false,          // stacked list of variation attributes (variable products only)
+  'show_item_quantity'   => true,
+  'show_item_remove'     => true,
+
+  // Cart Totals
+  'show_coupon_input'    => true,           // text input + apply button above cart totals
+  'show_cart_totals'     => true,
+  'show_subtotal'        => true,
+  'show_shipping'        => false,
+  'show_taxes'           => false,
+  'show_discounts'       => true,
+  'show_total'           => true,
+
+  // Drawer Footer
+  'show_empty_cart_button'  => false,
+  'show_view_cart_button'   => true,
+  'show_continue_shopping'  => true,
+  'continue_shopping'       => 'close',     // close | shop | custom — behavior of the continue shopping button
+  'show_checkout_button'    => true,
+
   // Appearance
   'load_plugin_stylesheet' => true,   // Layer 2: enqueue side-cart-theme.css
   'customize_appearance'   => true,   // Layer 3: output inline CSS overrides from settings below
@@ -704,16 +777,23 @@ $defaults = [
   'toast_bg'               => '#111111',
   'toast_color'            => '#ffffff',
   'empty_state_color'      => '#999999',
+  'drawer_animation'       => 'slide',   // slide | fade | none — applied as data-scrt-animation attribute;
+                                         // prefers-reduced-motion overrides to none via CSS media query
 
   // Integrations
   'auto_open'            => true,      // Open drawer on add-to-cart
   'hide_on_cart_page'    => true,
   'hide_on_checkout'     => true,
   'disabled_pages'       => [],        // array of page IDs
-  'continue_shopping'    => 'close',   // close | shop | custom
-  'continue_shopping_url'=> '',        // used when 'custom'
+  'continue_shopping_url'=> '',        // custom URL used when continue_shopping = 'custom'
   'override_cart_redirect' => true,    // prevent WC "redirect to cart" when side cart is active
-  'compat_mode'          => false,     // force fragment refresh, adjust z-index for conflicting themes
+  'compat_mode'          => false,     // when true: (1) listen for jQuery added_to_cart event instead of
+                                      // Store API events for add-to-cart detection; (2) output
+                                      // --scrt-z-index: 999999 as an inline style override; (3) force
+                                      // overlay blur to 0 (disables backdrop-filter to fix stacking
+                                      // context conflicts). Yellow admin notice shown on Integrations tab
+                                      // while active: "Compatibility mode is on. Disable it once your
+                                      // theme conflict is resolved."
 
   // Advanced
   'custom_css'           => '',
@@ -730,16 +810,58 @@ $defaults = [
 - [ ] `App.jsx` — tabbed settings interface with 5 tabs:
 
   | Tab | Controls  
-  | **General** | Enable/disable side cart, show/hide floating basket, basket position (bottom-right / bottom-left), drawer position (right / left) |
-  | **Appearance** | **"Load plugin stylesheet"** toggle (ON by default) — controls whether `side-cart-theme.css` is enqueued. **"Customize appearance"** toggle (ON by default, greyed out when stylesheet is off) — reveals all visual controls below. When stylesheet is ON but Customize is OFF, show info box: _"The default styles are active. Override them with CSS custom properties (e.g. `--scrt-primary`) in your theme stylesheet. Toggle 'Customize appearance' to use visual controls instead."_ plus a collapsible reference of all `--scrt-*` variables. **Visual controls** (shown when both toggles ON): Primary color, primary hover color, primary text color, drawer background, drawer header/footer background, text color, border color, drawer width, border radius, button radius, overlay color, overlay blur, box shadow, font family, font size, product image size + radius, basket background/color/size/radius, badge colors, cart icon selector (visual picker), toast colors, empty state color, show/hide thumbnails, show/hide quantity controls |
-  | **Integrations** | Auto-open drawer on add-to-cart, hide on cart page, hide on checkout page, disable on specific pages (page picker), continue shopping behavior (close drawer / go to shop / custom URL), override WC cart redirect setting, compatibility mode toggle |
-  | **Advanced** | Custom CSS (`TextareaControl`), reset all settings to defaults button |
+  | **General** | Enable/disable side cart, show/hide floating basket, basket position (bottom-right / bottom-left), drawer position (right / left), badge count mode (total / unique), custom trigger CSS selector — plus drawer header, body, item, totals, and footer sections detailed in §4c-i below |
+  | **Appearance** | **"Load plugin stylesheet"** toggle (ON by default) — controls whether `side-cart-theme.css` is enqueued. **"Customize appearance"** toggle (ON by default, greyed out when stylesheet is off) — reveals all visual controls below. When stylesheet is ON but Customize is OFF, show info box: _"The default styles are active. Override them with CSS custom properties (e.g. `--scrt-primary`) in your theme stylesheet. Toggle 'Customize appearance' to use visual controls instead."_ plus a collapsible reference of all `--scrt-*` variables. **Visual controls** (shown when both toggles ON): Primary color, primary hover color, primary text color, drawer background, drawer header/footer background, text color, border color, drawer width, border radius, button radius, overlay color, overlay blur, box shadow, font family, font size, product image size + radius, basket background/color/size/radius, badge colors, cart icon selector (visual picker), toast colors, empty state color, show/hide thumbnails, show/hide quantity controls, drawer animation style (slide / fade / none — `prefers-reduced-motion` overrides to none via CSS) |
+  | **Integrations** | Auto-open drawer on add-to-cart, hide on cart page, hide on checkout page, disable on specific pages (page picker), continue shopping custom URL (used when continue shopping behavior is set to "Custom URL" in General), override WC cart redirect setting, compatibility mode toggle — when on: falls back to jQuery `added_to_cart` event, forces `--scrt-z-index: 999999`, disables overlay `backdrop-filter`; yellow notice shown on tab while active |
+  | **Advanced** | Custom CSS (`TextareaControl`), reset all settings to defaults button (resets everything except `license_key` and `license_status` — requires confirmation dialog before executing) |
   | **License** | License key input, activation/deactivation button, license status display (free / active / expired), link to upgrade for free users |
+
+#### 4c-i. General Tab — Detailed Sections
+
+##### Drawer Header
+- [ ] Toggle: show/hide a heading in the drawer header (`show_drawer_heading`)
+- [ ] Text input: heading text (`drawer_heading_text`, e.g. "Your Cart") — disabled/greyed out when heading toggle is off
+
+##### Drawer Body
+- [ ] Toggle: show free shipping progress bar (`show_free_shipping_bar`, default on) — hidden automatically if WooCommerce has no free shipping method configured. Threshold read server-side from WC free shipping method `min_amount`. Renders a `<progress>` element with a message above it.
+  - [ ] Text input: progress message (`free_shipping_message`) — supports `{amount}` placeholder, e.g. "You're {amount} away from free shipping!"
+  - [ ] Text input: success message (`free_shipping_success_message`) — shown when threshold is reached, e.g. "You've unlocked free shipping!"
+- [ ] Toggle: show/hide empty state icon (`show_empty_state_icon`)
+- [ ] Text input: empty state message (`empty_state_message`, e.g. "Your cart is empty.")
+
+##### Individual Product (Cart Item)
+- [ ] Toggle: show product image (`show_item_image`)
+- [ ] Toggle: show product name (`show_item_name`)
+- [ ] Toggle: show product SKU (`show_item_sku`)
+- [ ] Toggle: show variation attributes (`show_item_variation`, default off) — for variable products only; renders a stacked `<ul class="scrt-item__variation">` beneath the product name, one `<li>` per attribute (`attribute: value`). Source: `context.item.variation[]` from Store API. Hidden automatically for simple products with no variation data.
+- [ ] Toggle: show price (`show_item_price`)
+  - [ ] Sub-option (select, shown when price is on): price display mode (`item_price_mode`) — "Individual price" | "Line total (price × quantity)"
+- [ ] Toggle: show quantity controls — decrease button, number input, increase button (`show_item_quantity`)
+- [ ] Toggle: show remove item button (`show_item_remove`)
+
+##### Cart Totals
+- [ ] Toggle: show coupon input (`show_coupon_input`, default on) — renders a text input + "Apply" button above the totals block. On apply: POST to `/wc/store/v1/cart/apply-coupon`, refresh cart state, show success or error toast. On remove: POST to `/wc/store/v1/cart/remove-coupon`. Applied coupons displayed as removable chips below the input.
+- [ ] Toggle: show cart totals block (`show_cart_totals`) — collapses all sub-options when off
+- [ ] Toggle: show subtotal line (`show_subtotal`)
+- [ ] Toggle: show approximate shipping cost (`show_shipping`)
+- [ ] Toggle: include taxes / VAT (`show_taxes`)
+- [ ] Toggle: include discounts (`show_discounts`) — when on, renders a discount line sourced from `totals.total_discount`. If coupons are applied, the applied coupon codes are shown inline next to the label (e.g. "Discount (SAVE10, WELCOME): -£5.00"), pulled from `state.appliedCoupons`.
+- [ ] Toggle: show total cost line (`show_total`)
+
+##### Drawer Footer
+- [ ] Toggle: show "Empty cart" button (`show_empty_cart_button`)
+- [ ] Toggle: show "View cart" button — navigates to WooCommerce cart page (`show_view_cart_button`)
+- [ ] Toggle: show "Continue shopping" button (`show_continue_shopping`)
+  - [ ] Sub-option (select, shown when button is on): behavior (`continue_shopping`) — "Close drawer" | "Go to shop page" | "Custom URL"
+  - [ ] Text input: custom URL — shown only when behavior is "Custom URL" (references `continue_shopping_url` from Integrations settings)
+- [ ] Toggle: show "Proceed to checkout" button (`show_checkout_button`)
 
 - [ ] Use `@wordpress/components`: `TabPanel`, `ToggleControl`, `ColorPicker`, `RangeControl`, `TextControl`, `TextareaControl`, `SelectControl`, `Button`, `Notice`, `Spinner`, `Card`, `CardBody`
 - [ ] Use `@wordpress/api-fetch` for GET/POST to `/side-cart/v1/settings`
 - [ ] Use `@wordpress/notices` for save feedback
-- [ ] Dirty state tracking — warn on unsaved changes
+- [ ] Dirty state tracking — `isDirty` is `true` whenever live form state diverges from the last-saved `savedSettings` ref; reset to `false` on successful save
+  - [ ] In-page sticky banner: rendered via `@wordpress/components` `Notice` (warning variant) at the top of the tab when `isDirty` is `true` — "You have unsaved changes. [Save now] [Discard]"
+  - [ ] `beforeunload` safety net: `window.addEventListener('beforeunload', ...)` registered while `isDirty` is `true`, removed on save or discard — triggers the browser's native "Leave site?" dialog
 - [ ] Per-tab save — each tab saves independently so users don't lose context
 - [ ] License tab: activation calls a separate `POST /side-cart/v1/license/activate` endpoint
 
@@ -768,9 +890,12 @@ This follows the same pattern WooCommerce uses (`yourtheme/woocommerce/*.php`).
 
 #### Template versioning
 
-- [ ] Each template file has a `@version` docblock tag (e.g., `@version 1.0.0`)
-- [ ] On plugin update, compare the theme's override version against the plugin's current version
-- [ ] Show an admin notice if a theme override is outdated (version mismatch), similar to WooCommerce's "template outdated" warnings
+- [ ] Define `SCRT_TEMPLATE_VERSION` constant in `side-cart.php` (e.g. `'1.0.0'`) — bump this whenever a template's markup changes in a way that would break theme overrides
+- [ ] Each template file contains a version comment on line 2: `@version 1.0.0`
+- [ ] In `scrt_get_template()`, after resolving a theme override path, extract the `@version` value from the file header using `get_file_data()` (the same function WordPress uses for plugin headers)
+- [ ] Compare extracted version against `SCRT_TEMPLATE_VERSION` using `version_compare()`
+- [ ] If the theme's version is older, register an admin notice (shown only to users with `manage_options`): _"The following Side Cart templates are outdated and may need updating: `cart-drawer.php`. [Learn how to update theme templates.]"_ — same pattern WooCommerce uses
+- [ ] Only check on admin page loads to avoid frontend overhead
 
 ### Phase 6: WooCommerce Integration (`class-plugin.php`)
 
@@ -961,9 +1086,7 @@ store("myOtherPlugin", {
 
 These are possibly planned but **not in the initial build**:
 
-- [ ] **Coupon input** — apply/remove coupons directly in the drawer
 - [ ] **Related products / cross-sells** — product recommendations inside the drawer (MAYBE, PROBABLY NOT)
-- [ ] **Rewards / progress bar** — "Add X more for free shipping" type incentives
 - [ ] **Shipping calculator** — inline shipping estimate
 - [ ] **Save for later** — move items to a wishlist (MAYBE)
 - [ ] **Express checkout buttons** — Apple Pay, Google Pay, PayPal via WC payment request API
