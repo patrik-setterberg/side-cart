@@ -9,6 +9,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// Load helper functions first (needed by other classes).
+require_once SCRT_PLUGIN_DIR . 'includes/helpers.php';
+
+// Autoloader for classes
 spl_autoload_register(
 	function ( string $class_name ): void {
 		// Only handle classes in the SideCart namespace.
@@ -21,8 +25,9 @@ spl_autoload_register(
 
 		// Convert namespace separators to directory separators and build
 		// a WP-style filename: ClassName -> class-classname.php
+		// Replace underscores with hyphens for WordPress naming convention.
 		$parts    = explode( '\\', $relative );
-		$filename = 'class-' . strtolower( implode( DIRECTORY_SEPARATOR, $parts ) ) . '.php';
+		$filename = 'class-' . str_replace( '_', '-', strtolower( implode( DIRECTORY_SEPARATOR, $parts ) ) ) . '.php';
 
 		$file = SCRT_PLUGIN_DIR . 'includes' . DIRECTORY_SEPARATOR . $filename;
 

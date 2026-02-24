@@ -1,0 +1,761 @@
+# Copyright (C) 2026 Patrik Setterberg
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Side Cart 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/side-cart\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-02-23T18:38:19+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: side-cart\n"
+
+#. Plugin Name of the plugin
+#: side-cart.php
+#: includes/class-admin.php:39
+#: includes/class-admin.php:40
+msgid "Side Cart"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: side-cart.php
+msgid "https://github.com/patrik-setterberg/side-cart"
+msgstr ""
+
+#. Description of the plugin
+#: side-cart.php
+msgid "A lightweight, accessible WooCommerce side-cart drawer built with the WordPress Interactivity API."
+msgstr ""
+
+#. Author of the plugin
+#: side-cart.php
+msgid "Patrik Setterberg"
+msgstr ""
+
+#. Author URI of the plugin
+#: side-cart.php
+msgid "https://github.com/patrik-setterberg"
+msgstr ""
+
+#: includes/class-rest-api.php:468
+msgid "Your Cart"
+msgstr ""
+
+#: includes/class-rest-api.php:472
+msgid "You're {amount} away from free shipping!"
+msgstr ""
+
+#: includes/class-rest-api.php:473
+msgid "You've unlocked free shipping!"
+msgstr ""
+
+#: includes/class-rest-api.php:475
+msgid "Your cart is empty."
+msgstr ""
+
+#: includes/class-template-loader.php:150
+msgid "Side Cart:"
+msgstr ""
+
+#. translators: %s: comma-separated list of template files
+#: includes/class-template-loader.php:154
+#, php-format
+msgid "Your theme has overridden the following templates, but they are outdated: %s. Please update them to match the plugin version."
+msgstr ""
+
+#: includes/class-trigger-block.php:48
+#: includes/class-trigger-shortcode.php:35
+#: templates/cart-trigger.php:19
+msgid "Cart"
+msgstr ""
+
+#. translators: %s: WooCommerce plugin link
+#: side-cart.php:53
+#, php-format
+msgid "Side Cart requires %s to be installed and active."
+msgstr ""
+
+#: templates/cart-drawer.php:57
+msgid "Close cart"
+msgstr ""
+
+#: templates/cart-drawer.php:106
+msgid "SKU:"
+msgstr ""
+
+#: templates/cart-drawer.php:140
+msgid "Decrease quantity"
+msgstr ""
+
+#: templates/cart-drawer.php:154
+msgid "Quantity"
+msgstr ""
+
+#: templates/cart-drawer.php:159
+msgid "Increase quantity"
+msgstr ""
+
+#: templates/cart-drawer.php:172
+msgid "Remove item"
+msgstr ""
+
+#: templates/cart-drawer.php:212
+#: templates/cart-drawer.php:214
+msgid "Coupon code"
+msgstr ""
+
+#: templates/cart-drawer.php:222
+msgid "Apply"
+msgstr ""
+
+#: templates/cart-drawer.php:234
+msgid "Remove coupon"
+msgstr ""
+
+#: templates/cart-drawer.php:251
+msgid "Subtotal"
+msgstr ""
+
+#: templates/cart-drawer.php:258
+msgid "Shipping"
+msgstr ""
+
+#: templates/cart-drawer.php:259
+#: templates/cart-drawer.php:266
+msgid "Calculated at checkout"
+msgstr ""
+
+#: templates/cart-drawer.php:265
+msgid "Tax"
+msgstr ""
+
+#: templates/cart-drawer.php:273
+msgid "Discount"
+msgstr ""
+
+#: templates/cart-drawer.php:282
+msgid "Total"
+msgstr ""
+
+#: templates/cart-drawer.php:296
+msgid "Proceed to Checkout"
+msgstr ""
+
+#: templates/cart-drawer.php:306
+msgid "View Cart"
+msgstr ""
+
+#: templates/cart-drawer.php:325
+msgid "Continue Shopping"
+msgstr ""
+
+#: templates/cart-drawer.php:336
+msgid "Empty Cart"
+msgstr ""
+
+#: templates/cart-drawer.php:361
+msgid "Dismiss"
+msgstr ""
+
+#: templates/cart-trigger.php:39
+#: templates/floating-basket.php:22
+msgid "Open cart"
+msgstr ""
+
+#: templates/floating-basket.php:36
+msgid "Items in cart"
+msgstr ""
+
+#: blocks/cart-trigger/edit.js:18
+msgid "Settings"
+msgstr ""
+
+#: blocks/cart-trigger/edit.js:20
+msgid "Button Text"
+msgstr ""
+
+#: blocks/cart-trigger/edit.js:25
+msgid "Show Badge"
+msgstr ""
+
+#: blocks/cart-trigger/edit.js:30
+msgid "Icon"
+msgstr ""
+
+#: blocks/cart-trigger/edit.js:33
+#: src/admin/App.jsx:881
+msgid "Shopping Bag"
+msgstr ""
+
+#: blocks/cart-trigger/edit.js:34
+#: src/admin/App.jsx:882
+msgid "Shopping Cart"
+msgstr ""
+
+#: blocks/cart-trigger/edit.js:35
+#: src/admin/App.jsx:883
+msgid "Basket"
+msgstr ""
+
+#: src/admin/App.jsx:98
+msgid "Settings saved successfully."
+msgstr ""
+
+#: src/admin/App.jsx:108
+msgid "Failed to save settings."
+msgstr ""
+
+#: src/admin/App.jsx:118
+msgid "Are you sure you want to discard your changes?"
+msgstr ""
+
+#: src/admin/App.jsx:137
+msgid "Loading settings..."
+msgstr ""
+
+#: src/admin/App.jsx:145
+msgid "Failed to load settings."
+msgstr ""
+
+#: src/admin/App.jsx:153
+msgid "Side Cart Settings"
+msgstr ""
+
+#: src/admin/App.jsx:170
+msgid "You have unsaved changes."
+msgstr ""
+
+#: src/admin/App.jsx:182
+msgid "Save Now"
+msgstr ""
+
+#: src/admin/App.jsx:189
+msgid "Discard"
+msgstr ""
+
+#: src/admin/App.jsx:201
+msgid "General"
+msgstr ""
+
+#: src/admin/App.jsx:205
+msgid "Appearance"
+msgstr ""
+
+#: src/admin/App.jsx:209
+msgid "Integrations"
+msgstr ""
+
+#: src/admin/App.jsx:213
+msgid "Advanced"
+msgstr ""
+
+#: src/admin/App.jsx:217
+#: src/admin/App.jsx:1086
+msgid "License"
+msgstr ""
+
+#: src/admin/App.jsx:262
+msgid "Save Changes"
+msgstr ""
+
+#: src/admin/App.jsx:278
+msgid "Global Settings"
+msgstr ""
+
+#: src/admin/App.jsx:280
+msgid "Enable side cart"
+msgstr ""
+
+#: src/admin/App.jsx:285
+msgid "Show floating basket"
+msgstr ""
+
+#: src/admin/App.jsx:292
+msgid "Basket position"
+msgstr ""
+
+#: src/admin/App.jsx:295
+msgid "Bottom Right"
+msgstr ""
+
+#: src/admin/App.jsx:296
+msgid "Bottom Left"
+msgstr ""
+
+#: src/admin/App.jsx:303
+msgid "Drawer position"
+msgstr ""
+
+#: src/admin/App.jsx:306
+msgid "Right"
+msgstr ""
+
+#: src/admin/App.jsx:307
+msgid "Left"
+msgstr ""
+
+#: src/admin/App.jsx:314
+msgid "Badge count mode"
+msgstr ""
+
+#: src/admin/App.jsx:317
+msgid "Total quantity"
+msgstr ""
+
+#: src/admin/App.jsx:318
+msgid "Unique items"
+msgstr ""
+
+#: src/admin/App.jsx:325
+msgid "Custom trigger CSS selector"
+msgstr ""
+
+#: src/admin/App.jsx:326
+msgid "e.g., .my-cart-btn, #header-cart"
+msgstr ""
+
+#: src/admin/App.jsx:337
+msgid "Drawer Header"
+msgstr ""
+
+#: src/admin/App.jsx:339
+msgid "Show drawer heading"
+msgstr ""
+
+#: src/admin/App.jsx:346
+msgid "Heading text"
+msgstr ""
+
+#: src/admin/App.jsx:358
+msgid "Drawer Body"
+msgstr ""
+
+#: src/admin/App.jsx:360
+msgid "Show free shipping bar"
+msgstr ""
+
+#: src/admin/App.jsx:367
+msgid "Progress message"
+msgstr ""
+
+#: src/admin/App.jsx:368
+msgid "Use {amount} as placeholder"
+msgstr ""
+
+#: src/admin/App.jsx:375
+msgid "Success message"
+msgstr ""
+
+#: src/admin/App.jsx:385
+msgid "Show empty state icon"
+msgstr ""
+
+#: src/admin/App.jsx:392
+msgid "Empty state message"
+msgstr ""
+
+#: src/admin/App.jsx:403
+msgid "Cart Item"
+msgstr ""
+
+#: src/admin/App.jsx:405
+msgid "Show product image"
+msgstr ""
+
+#: src/admin/App.jsx:412
+msgid "Show product name"
+msgstr ""
+
+#: src/admin/App.jsx:419
+msgid "Show product SKU"
+msgstr ""
+
+#: src/admin/App.jsx:426
+msgid "Show variation attributes"
+msgstr ""
+
+#: src/admin/App.jsx:433
+msgid "Show price"
+msgstr ""
+
+#: src/admin/App.jsx:441
+msgid "Price display mode"
+msgstr ""
+
+#: src/admin/App.jsx:444
+msgid "Individual price"
+msgstr ""
+
+#: src/admin/App.jsx:445
+msgid "Line total (price × quantity)"
+msgstr ""
+
+#: src/admin/App.jsx:453
+msgid "Show quantity controls"
+msgstr ""
+
+#: src/admin/App.jsx:460
+msgid "Show remove button"
+msgstr ""
+
+#: src/admin/App.jsx:471
+msgid "Cart Totals"
+msgstr ""
+
+#: src/admin/App.jsx:473
+msgid "Show coupon input"
+msgstr ""
+
+#: src/admin/App.jsx:480
+msgid "Show cart totals block"
+msgstr ""
+
+#: src/admin/App.jsx:489
+msgid "Show subtotal"
+msgstr ""
+
+#: src/admin/App.jsx:496
+msgid "Show shipping"
+msgstr ""
+
+#: src/admin/App.jsx:503
+msgid "Show taxes"
+msgstr ""
+
+#: src/admin/App.jsx:510
+msgid "Show discounts"
+msgstr ""
+
+#: src/admin/App.jsx:517
+msgid "Show total"
+msgstr ""
+
+#: src/admin/App.jsx:530
+msgid "Drawer Footer"
+msgstr ""
+
+#: src/admin/App.jsx:532
+msgid "Show \"Empty cart\" button"
+msgstr ""
+
+#: src/admin/App.jsx:539
+msgid "Show \"View cart\" button"
+msgstr ""
+
+#: src/admin/App.jsx:546
+msgid "Show \"Continue shopping\" button"
+msgstr ""
+
+#: src/admin/App.jsx:558
+msgid "Continue shopping behavior"
+msgstr ""
+
+#: src/admin/App.jsx:564
+msgid "Close drawer"
+msgstr ""
+
+#: src/admin/App.jsx:565
+msgid "Go to shop page"
+msgstr ""
+
+#: src/admin/App.jsx:566
+#: src/admin/App.jsx:574
+msgid "Custom URL"
+msgstr ""
+
+#: src/admin/App.jsx:587
+msgid "Show \"Proceed to checkout\" button"
+msgstr ""
+
+#: src/admin/App.jsx:611
+msgid "Style Settings"
+msgstr ""
+
+#: src/admin/App.jsx:613
+msgid "Load plugin stylesheet"
+msgstr ""
+
+#: src/admin/App.jsx:620
+msgid "Customize appearance"
+msgstr ""
+
+#: src/admin/App.jsx:630
+msgid "The default styles are active. Override them with CSS custom properties (e.g., --scrt-primary) in your theme stylesheet."
+msgstr ""
+
+#: src/admin/App.jsx:643
+msgid "Colors"
+msgstr ""
+
+#: src/admin/App.jsx:645
+msgid "Primary color"
+msgstr ""
+
+#: src/admin/App.jsx:652
+msgid "Primary hover color"
+msgstr ""
+
+#: src/admin/App.jsx:659
+msgid "Primary text color"
+msgstr ""
+
+#: src/admin/App.jsx:666
+msgid "Drawer background"
+msgstr ""
+
+#: src/admin/App.jsx:673
+msgid "Drawer header background"
+msgstr ""
+
+#: src/admin/App.jsx:683
+msgid "Drawer footer background"
+msgstr ""
+
+#: src/admin/App.jsx:693
+#: src/admin/App.jsx:865
+msgid "Text color"
+msgstr ""
+
+#: src/admin/App.jsx:700
+msgid "Border color"
+msgstr ""
+
+#: src/admin/App.jsx:707
+msgid "Overlay color"
+msgstr ""
+
+#: src/admin/App.jsx:708
+msgid "e.g., rgba(0, 0, 0, 0.4)"
+msgstr ""
+
+#: src/admin/App.jsx:722
+msgid "Layout"
+msgstr ""
+
+#: src/admin/App.jsx:724
+msgid "Drawer width (px)"
+msgstr ""
+
+#: src/admin/App.jsx:733
+msgid "Border radius (px)"
+msgstr ""
+
+#: src/admin/App.jsx:742
+msgid "Button radius (px)"
+msgstr ""
+
+#: src/admin/App.jsx:751
+msgid "Overlay blur (px)"
+msgstr ""
+
+#: src/admin/App.jsx:760
+msgid "Box shadow"
+msgstr ""
+
+#: src/admin/App.jsx:771
+msgid "Typography"
+msgstr ""
+
+#: src/admin/App.jsx:773
+msgid "Font family"
+msgstr ""
+
+#: src/admin/App.jsx:780
+msgid "Font size (px)"
+msgstr ""
+
+#: src/admin/App.jsx:793
+msgid "Product Images"
+msgstr ""
+
+#: src/admin/App.jsx:795
+msgid "Image size (px)"
+msgstr ""
+
+#: src/admin/App.jsx:804
+msgid "Image border radius (px)"
+msgstr ""
+
+#: src/admin/App.jsx:820
+msgid "Floating Basket"
+msgstr ""
+
+#: src/admin/App.jsx:822
+#: src/admin/App.jsx:858
+msgid "Background color"
+msgstr ""
+
+#: src/admin/App.jsx:829
+msgid "Icon color"
+msgstr ""
+
+#: src/admin/App.jsx:836
+msgid "Size (px)"
+msgstr ""
+
+#: src/admin/App.jsx:845
+msgid "Border radius"
+msgstr ""
+
+#: src/admin/App.jsx:856
+msgid "Badge"
+msgstr ""
+
+#: src/admin/App.jsx:876
+msgid "Icons & Animation"
+msgstr ""
+
+#: src/admin/App.jsx:878
+msgid "Cart icon"
+msgstr ""
+
+#: src/admin/App.jsx:890
+msgid "Drawer animation"
+msgstr ""
+
+#: src/admin/App.jsx:893
+msgid "Slide"
+msgstr ""
+
+#: src/admin/App.jsx:894
+msgid "Fade"
+msgstr ""
+
+#: src/admin/App.jsx:895
+msgid "None"
+msgstr ""
+
+#: src/admin/App.jsx:906
+msgid "Toasts"
+msgstr ""
+
+#: src/admin/App.jsx:908
+msgid "Toast background"
+msgstr ""
+
+#: src/admin/App.jsx:915
+msgid "Toast text color"
+msgstr ""
+
+#: src/admin/App.jsx:926
+msgid "Empty State"
+msgstr ""
+
+#: src/admin/App.jsx:928
+msgid "Empty state color"
+msgstr ""
+
+#: src/admin/App.jsx:948
+msgid "WooCommerce Integration"
+msgstr ""
+
+#: src/admin/App.jsx:950
+msgid "Auto-open on add-to-cart"
+msgstr ""
+
+#: src/admin/App.jsx:955
+msgid "Hide on cart page"
+msgstr ""
+
+#: src/admin/App.jsx:962
+msgid "Hide on checkout page"
+msgstr ""
+
+#: src/admin/App.jsx:969
+msgid "Override WC cart redirect"
+msgstr ""
+
+#: src/admin/App.jsx:980
+msgid "Theme Compatibility"
+msgstr ""
+
+#: src/admin/App.jsx:982
+msgid "Compatibility mode"
+msgstr ""
+
+#: src/admin/App.jsx:983
+msgid "Forces high z-index and disables backdrop blur"
+msgstr ""
+
+#: src/admin/App.jsx:994
+msgid "Compatibility mode is on. Disable it once your theme conflict is resolved."
+msgstr ""
+
+#: src/admin/App.jsx:1013
+msgid "Are you sure you want to reset all settings to defaults? This cannot be undone."
+msgstr ""
+
+#: src/admin/App.jsx:1041
+#: src/admin/App.jsx:1043
+msgid "Custom CSS"
+msgstr ""
+
+#: src/admin/App.jsx:1044
+msgid "Add custom CSS rules to further customize the cart appearance."
+msgstr ""
+
+#: src/admin/App.jsx:1059
+msgid "Reset Settings"
+msgstr ""
+
+#: src/admin/App.jsx:1061
+msgid "Reset all settings to their default values. License information will be preserved."
+msgstr ""
+
+#: src/admin/App.jsx:1073
+msgid "Reset to Defaults"
+msgstr ""
+
+#: src/admin/App.jsx:1088
+msgid "License key"
+msgstr ""
+
+#: src/admin/App.jsx:1094
+msgid "License status:"
+msgstr ""
+
+#: src/admin/App.jsx:1095
+msgid "Not activated"
+msgstr ""
+
+#: src/admin/App.jsx:1098
+msgid "License activation will be implemented in a future version."
+msgstr ""
+
+#: src/admin/App.jsx:1136
+msgid "Close"
+msgstr ""
+
+#: blocks/cart-trigger/block.json
+msgctxt "block title"
+msgid "Cart Trigger"
+msgstr ""
+
+#: blocks/cart-trigger/block.json
+msgctxt "block description"
+msgid "A button that opens the side cart drawer."
+msgstr ""
+
+#: blocks/cart-trigger/block.json
+msgctxt "block keyword"
+msgid "cart"
+msgstr ""
+
+#: blocks/cart-trigger/block.json
+msgctxt "block keyword"
+msgid "woocommerce"
+msgstr ""
+
+#: blocks/cart-trigger/block.json
+msgctxt "block keyword"
+msgid "trigger"
+msgstr ""
+
+#: blocks/cart-trigger/block.json
+msgctxt "block keyword"
+msgid "button"
+msgstr ""

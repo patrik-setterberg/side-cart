@@ -46,6 +46,40 @@ final class Plugin {
 	 */
 	private function init_hooks(): void {
 		add_action( 'init', array( $this, 'load_textdomain' ) );
+		add_action( 'init', array( $this, 'init_components' ) );
+		add_action( 'admin_init', array( $this, 'check_template_versions' ) );
+	}
+
+	/**
+	 * Initialize plugin components.
+	 *
+	 * @return void
+	 */
+	public function init_components(): void {
+		// Initialize core components.
+		$rest_api = new Rest_API();
+
+		// Frontend components (only if not in admin).
+		if ( ! is_admin() ) {
+			new Assets( $rest_api );
+			new Cart_Renderer( $rest_api );
+			new Trigger_Shortcode();
+			new Trigger_Block();
+		}
+
+		// Admin components.
+		if ( is_admin() ) {
+			new Admin();
+		}
+	}
+
+	/**
+	 * Check template versions on admin loads.
+	 *
+	 * @return void
+	 */
+	public function check_template_versions(): void {
+		Template_Loader::check_template_versions();
 	}
 
 	/**

@@ -1,0 +1,31 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "side-cart/cart-trigger",
+	"title": "Cart Trigger",
+	"category": "widgets",
+	"description": "A button that opens the side cart drawer.",
+	"keywords": ["cart", "woocommerce", "trigger", "button"],
+	"version": "1.0.0",
+	"textdomain": "side-cart",
+	"supports": {
+		"html": false,
+		"align": false
+	},
+	"attributes": {
+		"text": {
+			"type": "string",
+			"default": "Cart"
+		},
+		"showBadge": {
+			"type": "boolean",
+			"default": true
+		},
+		"icon": {
+			"type": "string",
+			"default": "bag",
+			"enum": ["bag", "cart", "basket"]
+		}
+	},
+	"editorScript": "file:../../build/blocks/cart-trigger/edit.js"
+}
