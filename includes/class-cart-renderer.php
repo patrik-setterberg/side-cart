@@ -209,13 +209,18 @@ class Cart_Renderer {
 				$max_qty = $cart_item['quantity']; // Can't increase beyond current quantity if out of stock.
 			}
 
+			// Format prices as plain text instead of HTML for Interactivity API compatibility
+			$price_args      = array( 'decimals' => wc_get_price_decimals() );
+			$formatted_price = strip_tags( wc_price( $product->get_price(), $price_args ) );
+			$formatted_total = strip_tags( wc_price( $cart_item['line_total'], $price_args ) );
+
 			$item_data = array(
 				'key'          => $cart_item_key,
 				'productId'    => $cart_item['product_id'],
-				'name'         => $product->get_name(),
+				'name'         => html_entity_decode( $product->get_name(), ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
 				'quantity'     => $cart_item['quantity'],
-				'price'        => wc_price( $product->get_price() ),
-				'lineTotal'    => wc_price( $cart_item['line_total'] ),
+				'price'        => html_entity_decode( $formatted_price, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+				'lineTotal'    => html_entity_decode( $formatted_total, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
 				'thumbnailUrl' => $thumbnail_url,
 				'permalink'    => $product->get_permalink(),
 				'sku'          => $product->get_sku(),
@@ -224,7 +229,15 @@ class Cart_Renderer {
 
 			// Add variation data if applicable.
 			if ( isset( $cart_item['variation'] ) && ! empty( $cart_item['variation'] ) ) {
-				$item_data['variation'] = $cart_item['variation'];
+				$variation_data = array();
+				foreach ( $cart_item['variation'] as $key => $value ) {
+					$variation_data[] = array(
+						'key'       => $key,
+						'attribute' => wc_attribute_label( $key, $product ),
+						'value'     => $value,
+					);
+				}
+				$item_data['variation'] = $variation_data;
 			}
 
 			$items[] = apply_filters( 'scrt_cart_item_data', $item_data, $cart_item, $product );
@@ -232,14 +245,18 @@ class Cart_Renderer {
 
 		$free_shipping_threshold = $this->get_free_shipping_threshold();
 
+		// Format totals as plain text for Interactivity API
+		$formatted_subtotal = strip_tags( wc_price( $cart->get_subtotal(), $price_args ) );
+		$formatted_total    = strip_tags( wc_price( $cart->get_total( 'edit' ), $price_args ) );
+
 		$state = array(
 			'isOpen'                => false,
 			'isLoading'             => false,
 			'items'                 => $items,
 			'totalItems'            => $cart->get_cart_contents_count(),
 			'totalUniqueItems'      => count( $cart->get_cart() ),
-			'subtotal'              => wc_price( $cart->get_subtotal() ),
-			'cartTotal'             => wc_price( $cart->get_total( 'edit' ) ),
+			'subtotal'              => html_entity_decode( $formatted_subtotal, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+			'cartTotal'             => html_entity_decode( $formatted_total, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
 			'currency'              => get_woocommerce_currency_symbol(),
 			'freeShippingThreshold' => $free_shipping_threshold,
 			'cartUrl'               => wc_get_cart_url(),

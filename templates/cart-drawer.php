@@ -116,7 +116,7 @@ $drawer_classes = apply_filters(
 								<?php endif; ?>
 
 								<?php if ( $settings['show_item_variation'] ) : ?>
-									<div class="scrt-item__variation" data-wp-bind--hidden="!context.item.variation">
+									<div class="scrt-item__variation" data-wp-bind--hidden="!context.item.variation || context.item.variation.length === 0">
 										<ul class="scrt-item__variation-list">
 											<template data-wp-each--attr="context.item.variation">
 												<li data-wp-key="context.attr.key">
@@ -131,9 +131,9 @@ $drawer_classes = apply_filters(
 								<?php if ( $settings['show_item_price'] ) : ?>
 									<div class="scrt-item__price">
 										<?php if ( 'line_total' === $settings['item_price_mode'] ) : ?>
-											<span data-wp-html="context.item.lineTotal"></span>
+											<span data-wp-text="context.item.lineTotal"></span>
 										<?php else : ?>
-											<span data-wp-html="context.item.price"></span>
+											<span data-wp-text="context.item.price"></span>
 										<?php endif; ?>
 									</div>
 								<?php endif; ?>
@@ -257,7 +257,7 @@ $drawer_classes = apply_filters(
 					<?php if ( $settings['show_subtotal'] ) : ?>
 						<div class="scrt-totals__row">
 							<span class="scrt-totals__label"><?php esc_html_e( 'Subtotal', 'side-cart' ); ?></span>
-							<span class="scrt-totals__value" data-wp-html="state.subtotal"></span>
+							<span class="scrt-totals__value" data-wp-text="state.subtotal"></span>
 						</div>
 					<?php endif; ?>
 
@@ -288,7 +288,7 @@ $drawer_classes = apply_filters(
 					<?php if ( $settings['show_total'] ) : ?>
 						<div class="scrt-totals__row scrt-totals__row--total">
 							<span class="scrt-totals__label"><?php esc_html_e( 'Total', 'side-cart' ); ?></span>
-							<span class="scrt-totals__value" data-wp-html="state.cartTotal"></span>
+							<span class="scrt-totals__value" data-wp-text="state.cartTotal"></span>
 						</div>
 					<?php endif; ?>
 				</div>
