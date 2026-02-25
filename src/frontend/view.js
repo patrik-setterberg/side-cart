@@ -9,71 +9,19 @@
 
 import './view.css';
 import { store, getContext } from '@wordpress/interactivity';
+import { createCartApiRequests } from './api/cart-api';
+import { transformCartToState } from './utils/cart-transformers';
+import { createComputedState } from './state/computed';
+import {
+	createToastHelpers,
+	initFocusTrap,
+	watchOpen,
+	initCustomTriggers,
+} from './utils/ui-helpers';
 
 const { state, actions, callbacks } = store( 'side-cart', {
 	state: {
-		// Computed getters
-		get hasItems() {
-			return state.items && state.items.length > 0;
-		},
-
-		get badgeCount() {
-			if ( state.badgeCountMode === 'unique' ) {
-				return state.totalUniqueItems;
-			}
-			return state.totalItems;
-		},
-
-		get headerText() {
-			const count = state.totalUniqueItems;
-			if ( count === 0 ) {
-				return 'Your Cart';
-			}
-			return `Your Cart (${ count } ${ count === 1 ? 'item' : 'items' })`;
-		},
-
-		get freeShippingRemaining() {
-			if ( ! state.freeShippingThreshold ) {
-				return 0;
-			}
-			// Parse subtotal string to number
-			const subtotalNum = parseFloat(
-				state.subtotal.replace( /[^\d.-]/g, '' )
-			);
-			const remaining = state.freeShippingThreshold - subtotalNum;
-			return Math.max( 0, remaining );
-		},
-
-		get freeShippingPercent() {
-			if ( ! state.freeShippingThreshold ) {
-				return 0;
-			}
-			const subtotalNum = parseFloat(
-				state.subtotal.replace( /[^\d.-]/g, '' )
-			);
-			const percent =
-				( subtotalNum / state.freeShippingThreshold ) * 100;
-			return Math.min( 100, Math.max( 0, percent ) );
-		},
-
-		get freeShippingMessage() {
-			if ( ! state.freeShippingThreshold ) {
-				return '';
-			}
-			const remaining = state.freeShippingRemaining;
-			if ( remaining <= 0 ) {
-				return state.freeShippingSuccessMessage;
-			}
-			// Replace {amount} placeholder
-			const amount = new Intl.NumberFormat( 'en-US', {
-				style: 'currency',
-				currency: 'USD',
-			} ).format( remaining );
-			return state.freeShippingProgressMessage.replace(
-				'{amount}',
-				amount
-			);
-		},
+		// Computed getters - created dynamically below
 	},
 
 	actions: {
@@ -102,16 +50,12 @@ const { state, actions, callbacks } = store( 'side-cart', {
 		*refreshCart() {
 			state.isLoading = true;
 			try {
-				const response = yield fetch(
-					`${ state.storeApiBase }cart`,
-					{
-						method: 'GET',
-						headers: {
-							'Content-Type': 'application/json',
-							Nonce: state.storeApiNonce,
-						},
-					}
-				);
+				const api = createCartApiRequests( {
+					storeApiBase: state.storeApiBase,
+					storeApiNonce: state.storeApiNonce,
+				} );
+
+				const response = yield fetch( ...api.fetchCart() );
 
 				if ( ! response.ok ) {
 					throw new Error( 'Failed to fetch cart' );
@@ -142,17 +86,12 @@ const { state, actions, callbacks } = store( 'side-cart', {
 			state.isLoading = true;
 
 			try {
-				const response = yield fetch(
-					`${ state.storeApiBase }cart/remove-item`,
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							Nonce: state.storeApiNonce,
-						},
-						body: JSON.stringify( { key: itemKey } ),
-					}
-				);
+				const api = createCartApiRequests( {
+					storeApiBase: state.storeApiBase,
+					storeApiNonce: state.storeApiNonce,
+				} );
+
+				const response = yield fetch( ...api.removeItem( itemKey ) );
 
 				if ( ! response.ok ) {
 					const errorData = yield response.json();
@@ -201,19 +140,12 @@ const { state, actions, callbacks } = store( 'side-cart', {
 			state.isLoading = true;
 
 			try {
-				const response = yield fetch(
-					`${ state.storeApiBase }cart/items/${ itemKey }`,
-					{
-						method: 'PUT',
-						headers: {
-							'Content-Type': 'application/json',
-							Nonce: state.storeApiNonce,
-						},
-						body: JSON.stringify( {
-							quantity: parseInt( newQuantity, 10 ),
-						} ),
-					}
-				);
+				const api = createCartApiRequests( {
+					storeApiBase: state.storeApiBase,
+					storeApiNonce: state.storeApiNonce,
+				} );
+
+				const response = yield fetch( ...api.updateItemQuantity( itemKey, newQuantity ) );
 
 				if ( ! response.ok ) {
 					const errorData = yield response.json();
@@ -265,19 +197,12 @@ const { state, actions, callbacks } = store( 'side-cart', {
 			state.isLoading = true;
 
 			try {
-				const response = yield fetch(
-					`${ state.storeApiBase }cart/items/${ ctx.item.key }`,
-					{
-						method: 'PUT',
-						headers: {
-							'Content-Type': 'application/json',
-							Nonce: state.storeApiNonce,
-						},
-						body: JSON.stringify( {
-							quantity: newQuantity,
-						} ),
-					}
-				);
+				const api = createCartApiRequests( {
+					storeApiBase: state.storeApiBase,
+					storeApiNonce: state.storeApiNonce,
+				} );
+
+				const response = yield fetch( ...api.updateItemQuantity( ctx.item.key, newQuantity ) );
 
 				if ( ! response.ok ) {
 					const errorData = yield response.json();
@@ -324,19 +249,12 @@ const { state, actions, callbacks } = store( 'side-cart', {
 			state.isLoading = true;
 
 			try {
-				const response = yield fetch(
-					`${ state.storeApiBase }cart/items/${ ctx.item.key }`,
-					{
-						method: 'PUT',
-						headers: {
-							'Content-Type': 'application/json',
-							Nonce: state.storeApiNonce,
-						},
-						body: JSON.stringify( {
-							quantity: newQuantity,
-						} ),
-					}
-				);
+				const api = createCartApiRequests( {
+					storeApiBase: state.storeApiBase,
+					storeApiNonce: state.storeApiNonce,
+				} );
+
+				const response = yield fetch( ...api.updateItemQuantity( ctx.item.key, newQuantity ) );
 
 				if ( ! response.ok ) {
 					const errorData = yield response.json();
@@ -383,17 +301,12 @@ const { state, actions, callbacks } = store( 'side-cart', {
 			state.isLoading = true;
 
 			try {
-				const response = yield fetch(
-					`${ state.storeApiBase }cart/apply-coupon`,
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							Nonce: state.storeApiNonce,
-						},
-						body: JSON.stringify( { code: couponCode } ),
-					}
-				);
+				const api = createCartApiRequests( {
+					storeApiBase: state.storeApiBase,
+					storeApiNonce: state.storeApiNonce,
+				} );
+
+				const response = yield fetch( ...api.applyCoupon( couponCode ) );
 
 				if ( ! response.ok ) {
 					const errorData = yield response.json();
@@ -425,17 +338,12 @@ const { state, actions, callbacks } = store( 'side-cart', {
 			state.isLoading = true;
 
 			try {
-				const response = yield fetch(
-					`${ state.storeApiBase }cart/remove-coupon`,
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							Nonce: state.storeApiNonce,
-						},
-						body: JSON.stringify( { code: couponCode } ),
-					}
-				);
+				const api = createCartApiRequests( {
+					storeApiBase: state.storeApiBase,
+					storeApiNonce: state.storeApiNonce,
+				} );
+
+				const response = yield fetch( ...api.removeCoupon( couponCode ) );
 
 				if ( ! response.ok ) {
 					const errorData = yield response.json();
@@ -471,16 +379,12 @@ const { state, actions, callbacks } = store( 'side-cart', {
 			state.isLoading = true;
 
 			try {
-				const response = yield fetch(
-					`${ state.storeApiBase }cart/items`,
-					{
-						method: 'DELETE',
-						headers: {
-							'Content-Type': 'application/json',
-							Nonce: state.storeApiNonce,
-						},
-					}
-				);
+				const api = createCartApiRequests( {
+					storeApiBase: state.storeApiBase,
+					storeApiNonce: state.storeApiNonce,
+				} );
+
+				const response = yield fetch( ...api.emptyCart() );
 
 				if ( ! response.ok ) {
 					throw new Error( 'Failed to empty cart' );
@@ -499,241 +403,50 @@ const { state, actions, callbacks } = store( 'side-cart', {
 		},
 
 		updateStateFromCart( cart ) {
-			// Helper to decode HTML entities
-			const decodeHtml = ( html ) => {
-				const txt = document.createElement( 'textarea' );
-				txt.innerHTML = html;
-				return txt.value;
-			};
+			const transformed = transformCartToState( cart );
 
-			// Helper to format price from Store API - returns plain text instead of HTML
-			// because Interactivity API doesn't support complex HTML in data-wp-text
-			const formatPrice = ( priceStr, currencyData ) => {
-				if ( priceStr === null || priceStr === undefined || priceStr === '' ) {
-					return '';
-				}
-
-				// The Store API uses raw_prices with a precision field
-				// precision indicates how many decimal places the raw value has
-				// e.g., precision:6 with price:'12000000' means 12000000 / 10^6 = 12
-				const precision = currencyData?.precision ?? currencyData?.currency_minor_unit ?? 2;
-				const divisor = Math.pow( 10, precision );
-				const amount = parseFloat( priceStr ) / divisor;
-
-				// For display, use currency_minor_unit (e.g., 0 for SEK = no decimals)
-				const displayPrecision = currencyData?.currency_minor_unit ?? 0;
-				const formatted = amount.toFixed( displayPrecision );
-
-				// Get currency formatting
-				const symbol = currencyData?.currency_symbol || 'kr';
-				const prefix = currencyData?.currency_prefix || '';
-				const suffix = currencyData?.currency_suffix || '';
-				const decimalSep = currencyData?.currency_decimal_separator || ',';
-				const thousandSep = currencyData?.currency_thousand_separator || ' ';
-
-				// Format the number with thousand separators
-				const parts = formatted.split( '.' );
-				parts[ 0 ] = parts[ 0 ].replace(
-					/\B(?=(\d{3})+(?!\d))/g,
-					thousandSep
-				);
-				const displayAmount = parts.join( decimalSep );
-
-				// Build price string - use suffix if provided, otherwise symbol
-				// For SEK: suffix is " kr", symbol is also "kr" - use suffix to avoid duplication
-				if ( suffix ) {
-					return `${ prefix }${ displayAmount }${ suffix }`.trim();
-				} else if ( prefix ) {
-					return `${ prefix }${ symbol }${ displayAmount }`.trim();
-				} else {
-					return `${ displayAmount } ${ symbol }`.trim();
-				}
-			};
-
-			// Map WC Store API cart response to state
-			state.items = cart.items?.map( ( item ) => {
-				// Format variation data for the template
-				let variation = null;
-				if (
-					item.variation &&
-					Array.isArray( item.variation ) &&
-					item.variation.length > 0
-				) {
-					variation = item.variation.map( ( attr ) => ( {
-						key: attr.attribute || attr.key,
-						attribute: attr.attribute,
-						value: attr.value,
-					} ) );
-				}
-
-				// Get price data from Store API
-				// Item prices use raw_prices with precision field (e.g., "12000000" with precision 6 = 12 kr)
-				const currencyData = item.prices || item.totals || {};
-				const rawPrices = item.prices?.raw_prices || {};
-				const precision = rawPrices.precision || currencyData.currency_minor_unit || 2;
-
-				return {
-					key: item.key,
-					productId: item.id,
-					name: decodeHtml( item.name ),
-					quantity: item.quantity,
-					price: formatPrice( rawPrices.price, { ...currencyData, precision } ),
-					lineTotal: formatPrice(
-						item.totals?.line_total,
-						currencyData
-					),
-					thumbnailUrl: item.images?.[ 0 ]?.src || '',
-					permalink: item.permalink,
-					sku: item.sku || '',
-					maxQty: item.quantity_limits?.maximum || 9999,
-					variation,
-				};
-			} ) || [];
-
-			// Format totals - Store API returns totals as plain display strings (e.g., "394" = 394 kr)
-			// Unlike item prices, these don't use precision and are already in display format
-			const totalsCurrency = cart.items?.[ 0 ]?.prices || {};
-			const subtotalValue = cart.totals?.total_items || '0';
-			const totalValue = cart.totals?.total_price || '0';
-			const symbol = totalsCurrency?.currency_symbol || 'kr';
-			const suffix = totalsCurrency?.currency_suffix || '';
-
-			state.totalItems = cart.items_count || 0;
-			state.totalUniqueItems = cart.items?.length || 0;
-			state.subtotal = suffix ? `${ subtotalValue }${ suffix }` : `${ subtotalValue } ${ symbol }`;
-			state.cartTotal = suffix ? `${ totalValue }${ suffix }` : `${ totalValue } ${ symbol }`;
-			state.appliedCoupons = cart.coupons?.map( ( c ) => c.code ) || [];
+			state.items = transformed.items;
+			state.totalItems = transformed.totalItems;
+			state.totalUniqueItems = transformed.totalUniqueItems;
+			state.subtotal = transformed.subtotal;
+			state.cartTotal = transformed.cartTotal;
+			state.appliedCoupons = transformed.appliedCoupons;
 		},
 
 		showToast( message, type = 'info' ) {
-			const toast = {
-				id: Date.now(),
-				message,
-				type,
-			};
-			state.toasts = [ ...state.toasts, toast ];
+			const toastHelpers = createToastHelpers( state );
+			toastHelpers.showToast( message, type );
 		},
 
 		dismissToast() {
 			const ctx = getContext();
-			state.toasts = state.toasts.filter(
-				( t ) => t.id !== ctx.toast.id
-			);
+			const toastHelpers = createToastHelpers( state );
+			toastHelpers.dismissToast( ctx.toast.id );
 		},
 	},
 
 	callbacks: {
 		initFocusTrap() {
-			const drawer = document.querySelector( '.scrt-drawer' );
-			if ( ! drawer ) {
-				return;
-			}
-
-			const focusableElements = drawer.querySelectorAll(
-				'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-			);
-
-			if ( focusableElements.length === 0 ) {
-				return;
-			}
-
-			const firstElement = focusableElements[ 0 ];
-			const lastElement =
-				focusableElements[ focusableElements.length - 1 ];
-
-			const trapFocus = ( event ) => {
-				if ( ! state.isOpen ) {
-					return;
-				}
-
-				if ( event.key !== 'Tab' ) {
-					return;
-				}
-
-				if ( event.shiftKey ) {
-					if ( document.activeElement === firstElement ) {
-						event.preventDefault();
-						lastElement.focus();
-					}
-				} else if ( document.activeElement === lastElement ) {
-					event.preventDefault();
-					firstElement.focus();
-				}
-			};
-
-			drawer.addEventListener( 'keydown', trapFocus );
-
-			return () => {
-				drawer.removeEventListener( 'keydown', trapFocus );
-			};
+			return initFocusTrap( state );
 		},
 
 		watchOpen() {
-			if ( state.isOpen ) {
-				document.body.style.overflow = 'hidden';
-				document.dispatchEvent( new CustomEvent( 'scrt:cart-opened' ) );
-
-				// Focus first focusable element
-				setTimeout( () => {
-					const closeButton = document.querySelector(
-						'.scrt-drawer__close'
-					);
-					if ( closeButton ) {
-						closeButton.focus();
-					}
-				}, 100 );
-			} else {
-				document.body.style.overflow = '';
-				document.dispatchEvent( new CustomEvent( 'scrt:cart-closed' ) );
-			}
+			watchOpen( state );
 		},
 
 		autoExpireToasts() {
-			if ( state.toasts.length === 0 ) {
-				return;
-			}
-
-			const latestToast = state.toasts[ state.toasts.length - 1 ];
-			setTimeout( () => {
-				state.toasts = state.toasts.filter(
-					( t ) => t.id !== latestToast.id
-				);
-			}, 3000 );
+			const toastHelpers = createToastHelpers( state );
+			toastHelpers.autoExpireToasts();
 		},
 
 		initCustomTriggers() {
-			if ( ! state.customTriggerSelector ) {
-				return;
-			}
-
-			const customTriggers = document.querySelectorAll(
-				state.customTriggerSelector
-			);
-
-			customTriggers.forEach( ( trigger ) => {
-				trigger.addEventListener( 'click', () => {
-					actions.open();
-				} );
-
-				// Inject badge
-				const badgeContainer =
-					trigger.querySelector( '[data-scrt-badge]' ) ||
-					trigger.querySelector( '.scrt-badge' );
-
-				if ( badgeContainer ) {
-					const badge = document.createElement( 'span' );
-					badge.className = 'scrt-badge';
-					badge.setAttribute( 'data-wp-text', 'state.badgeCount' );
-					badge.setAttribute(
-						'data-wp-bind--hidden',
-						'state.badgeCount === 0'
-					);
-					badgeContainer.appendChild( badge );
-				}
-			} );
+			initCustomTriggers( state, actions.open );
 		},
 	},
 } );
+
+// Add computed state getters to the state object
+Object.defineProperties( state, Object.getOwnPropertyDescriptors( createComputedState( state ) ) );
 
 // Listen for WooCommerce add-to-cart event
 if ( typeof jQuery !== 'undefined' ) {
