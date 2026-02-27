@@ -803,20 +803,21 @@
 	}
 }
 
-.scrt-toast__close {
+.scrt-toast__undo {
 	padding: 0;
-	width: 20px;
-	height: 20px;
 	border: none;
 	background: transparent;
 	color: currentColor;
 	cursor: pointer;
-	font-size: 20px;
-	line-height: 1;
-	opacity: 0.7;
+	font-size: var(--scrt-toast-font-size);
+	font-weight: 600;
+	text-decoration: underline;
+	white-space: nowrap;
+	opacity: 0.85;
+	flex-shrink: 0;
 }
 
-.scrt-toast__close:hover {
+.scrt-toast__undo:hover {
 	opacity: 1;
 }
 

@@ -114,6 +114,32 @@ export function createCartApiRequests( config ) {
 		},
 
 		/**
+		 * Build fetch config for adding an item to the cart
+		 *
+		 * @param {number}      productId - Product ID
+		 * @param {number}      quantity  - Quantity to add
+		 * @param {Array|null}  variation - Variation attributes
+		 * @return {Array} [url, options] for fetch
+		 */
+		addItem( productId, quantity, variation = null ) {
+			const body = { id: productId, quantity };
+			if ( variation && variation.length > 0 ) {
+				body.variation = variation.map( ( v ) => ( {
+					attribute: v.attribute,
+					value: v.value,
+				} ) );
+			}
+			return [
+				`${ storeApiBase }cart/add-item`,
+				{
+					method: 'POST',
+					headers: getHeaders(),
+					body: JSON.stringify( body ),
+				},
+			];
+		},
+
+		/**
 		 * Build fetch config for emptying the cart
 		 *
 		 * @return {Array} [url, options] for fetch

@@ -367,7 +367,7 @@ $drawer_classes = apply_filters(
 	</aside>
 
 	<!-- Toast Container -->
-	<div class="scrt-toasts" aria-live="assertive" aria-atomic="true">
+	<div class="scrt-toasts" aria-live="assertive" aria-atomic="true" data-wp-watch="callbacks.autoExpireToasts">
 		<template data-wp-each--toast="state.toasts">
 			<div
 				class="scrt-toast scrt-toast--<?php echo esc_attr( 'context.toast.type' ); ?>"
@@ -376,13 +376,12 @@ $drawer_classes = apply_filters(
 			>
 				<span data-wp-text="context.toast.message"></span>
 				<button
-					class="scrt-toast__close"
+					class="scrt-toast__undo"
 					type="button"
-					aria-label="<?php esc_attr_e( 'Dismiss', 'side-cart' ); ?>"
-					data-wp-on--click="actions.dismissToast"
-				>
-					×
-				</button>
+					data-wp-bind--hidden="!context.toast.undoItem"
+					data-wp-on--click="actions.undoRemoveItem"
+					data-wp-text="state.i18n.undo"
+				></button>
 			</div>
 		</template>
 	</div>

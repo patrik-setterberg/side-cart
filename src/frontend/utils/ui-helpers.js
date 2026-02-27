@@ -21,11 +21,12 @@ export function createToastHelpers( state ) {
 		 * @param {string} message - Toast message
 		 * @param {string} type - Toast type (info, success, error)
 		 */
-		showToast( message, type = 'info' ) {
+		showToast( message, type = 'info', data = {} ) {
 			const toast = {
 				id: Date.now(),
 				message,
 				type,
+				...data,
 			};
 			state.toasts = [ ...state.toasts, toast ];
 		},

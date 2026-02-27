@@ -148,6 +148,11 @@ const { state, actions } = store( 'side-cart', {
 			const ctx = getContext();
 			const itemKey = ctx.item.key;
 			const itemName = ctx.item.name;
+			const undoItem = {
+				productId: ctx.item.productId,
+				quantity: ctx.item.quantity,
+				variation: ctx.item.variation,
+			};
 
 			state.isLoading = true;
 
@@ -171,7 +176,8 @@ const { state, actions } = store( 'side-cart', {
 
 				actions.showToast(
 					state.i18n.itemRemovedFromCart.replace( '%s', itemName ),
-					'success'
+					'success',
+					{ undoItem }
 				);
 
 				// Dispatch custom event
@@ -486,15 +492,58 @@ const { state, actions } = store( 'side-cart', {
 			state.appliedCoupons = transformed.appliedCoupons;
 		},
 
-		showToast( message, type = 'info' ) {
+		showToast( message, type = 'info', data = {} ) {
 			const toastHelpers = createToastHelpers( state );
-			toastHelpers.showToast( message, type );
+			toastHelpers.showToast( message, type, data );
 		},
 
 		dismissToast() {
 			const ctx = getContext();
 			const toastHelpers = createToastHelpers( state );
 			toastHelpers.dismissToast( ctx.toast.id );
+		},
+
+		*undoRemoveItem() {
+			const ctx = getContext();
+			const { undoItem, id: toastId } = ctx.toast;
+
+			const toastHelpers = createToastHelpers( state );
+			toastHelpers.dismissToast( toastId );
+
+			state.isLoading = true;
+
+			try {
+				const api = createCartApiRequests( {
+					storeApiBase: state.storeApiBase,
+					storeApiNonce: state.storeApiNonce,
+				} );
+
+				const response = yield fetch(
+					...api.addItem(
+						undoItem.productId,
+						undoItem.quantity,
+						undoItem.variation
+					)
+				);
+
+				if ( ! response.ok ) {
+					const errorData = yield response.json();
+					throw new Error(
+						errorData.message || state.i18n.failedToUpdateCart
+					);
+				}
+
+				const cart = yield response.json();
+				actions.updateStateFromCart( cart );
+			} catch ( error ) {
+				console.error( 'Side Cart: Failed to undo remove', error );
+				actions.showToast(
+					error.message || state.i18n.failedToUpdateCart,
+					'error'
+				);
+			} finally {
+				state.isLoading = false;
+			}
 		},
 	},
 
