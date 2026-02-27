@@ -18,6 +18,12 @@ import {
 	initCustomTriggers,
 } from './utils/ui-helpers';
 
+// Debounce state for quantity stepper buttons and the qty input.
+const quantityTimers = new Map(); // itemKey -> timerId
+const pendingQuantities = new Map(); // itemKey -> pending quantity
+const refocusTargets = new Set(); // item keys whose qty input should be re-focused after update
+const buttonRefocusTargets = new Map(); // itemKey -> 'plus' | 'minus' button to re-focus after update
+
 const { state, actions } = store( 'side-cart', {
 	state: {
 		// Derived state — must be defined here (inside store) to be reactive.
@@ -185,7 +191,7 @@ const { state, actions } = store( 'side-cart', {
 			}
 		},
 
-		*updateQuantity( event ) {
+		updateQuantity( event ) {
 			const ctx = getContext();
 			const itemKey = ctx.item.key;
 			const newQuantity = parseInt( event.target.value, 10 );
@@ -196,10 +202,96 @@ const { state, actions } = store( 'side-cart', {
 
 			if ( newQuantity > ctx.item.maxQty ) {
 				actions.showToast( state.i18n.quantityExceedsStock, 'error' );
-				event.target.value = ctx.item.quantity;
+				event.target.value = pendingQuantities.has( itemKey )
+					? pendingQuantities.get( itemKey )
+					: ctx.item.quantity;
 				return;
 			}
 
+			// Optimistically update the displayed quantity right away.
+			ctx.item.quantity = newQuantity;
+			pendingQuantities.set( itemKey, newQuantity );
+
+			// Mark this item's input for re-focus after the update.
+			refocusTargets.add( itemKey );
+
+			// Debounce the actual API call.
+			clearTimeout( quantityTimers.get( itemKey ) );
+			quantityTimers.set(
+				itemKey,
+				setTimeout( () => {
+					quantityTimers.delete( itemKey );
+					actions.commitQuantityUpdate( itemKey, newQuantity );
+				}, 500 )
+			);
+		},
+
+		increaseQuantity( event ) {
+			const ctx = getContext();
+			const itemKey = ctx.item.key;
+			const currentQty = pendingQuantities.has( itemKey )
+				? pendingQuantities.get( itemKey )
+				: ctx.item.quantity;
+			const newQuantity = currentQty + 1;
+
+			if ( newQuantity > ctx.item.maxQty ) {
+				actions.showToast( state.i18n.maximumQuantityReached, 'error' );
+				return;
+			}
+
+			// Optimistically update the displayed quantity right away.
+			ctx.item.quantity = newQuantity;
+			pendingQuantities.set( itemKey, newQuantity );
+
+			// Track keyboard activations (detail === 0) for re-focus after update.
+			if ( event.detail === 0 ) {
+				buttonRefocusTargets.set( itemKey, 'plus' );
+			}
+
+			// Debounce the actual API call.
+			clearTimeout( quantityTimers.get( itemKey ) );
+			quantityTimers.set(
+				itemKey,
+				setTimeout( () => {
+					quantityTimers.delete( itemKey );
+					actions.commitQuantityUpdate( itemKey, newQuantity );
+				}, 500 )
+			);
+		},
+
+		decreaseQuantity( event ) {
+			const ctx = getContext();
+			const itemKey = ctx.item.key;
+			const currentQty = pendingQuantities.has( itemKey )
+				? pendingQuantities.get( itemKey )
+				: ctx.item.quantity;
+			const newQuantity = currentQty - 1;
+
+			if ( newQuantity < 1 ) {
+				return;
+			}
+
+			// Optimistically update the displayed quantity right away.
+			ctx.item.quantity = newQuantity;
+			pendingQuantities.set( itemKey, newQuantity );
+
+			// Track keyboard activations (detail === 0) for re-focus after update.
+			if ( event.detail === 0 ) {
+				buttonRefocusTargets.set( itemKey, 'minus' );
+			}
+
+			// Debounce the actual API call.
+			clearTimeout( quantityTimers.get( itemKey ) );
+			quantityTimers.set(
+				itemKey,
+				setTimeout( () => {
+					quantityTimers.delete( itemKey );
+					actions.commitQuantityUpdate( itemKey, newQuantity );
+				}, 500 )
+			);
+		},
+
+		*commitQuantityUpdate( itemKey, newQuantity ) {
 			state.isLoading = true;
 
 			try {
@@ -208,23 +300,18 @@ const { state, actions } = store( 'side-cart', {
 					storeApiNonce: state.storeApiNonce,
 				} );
 
-				const response = yield fetch( ...api.updateItemQuantity( itemKey, newQuantity ) );
+				const response = yield fetch(
+					...api.updateItemQuantity( itemKey, newQuantity )
+				);
 
 				if ( ! response.ok ) {
 					const errorData = yield response.json();
-					const errorMessage =
-						errorData.message || state.i18n.failedToUpdateQuantity;
-
-					actions.showToast( errorMessage, 'error' );
-
-					// Restore the original quantity value in the input
-					event.target.value = ctx.item.quantity;
-					state.isLoading = false;
-					return;
+					throw new Error(
+						errorData.message || state.i18n.failedToUpdateQuantity
+					);
 				}
 
-				// Item update endpoint returns single item, not full cart
-				// So we need to refresh the entire cart
+				// Item update endpoint returns single item, not full cart.
 				yield response.json(); // Consume the response
 				yield actions.refreshCart();
 
@@ -243,113 +330,38 @@ const { state, actions } = store( 'side-cart', {
 					error.message || state.i18n.failedToUpdateQuantity,
 					'error'
 				);
-				event.target.value = ctx.item.quantity;
-			} finally {
-				state.isLoading = false;
-			}
-		},
-
-		*increaseQuantity() {
-			const ctx = getContext();
-			const newQuantity = ctx.item.quantity + 1;
-
-			if ( newQuantity > ctx.item.maxQty ) {
-				actions.showToast( state.i18n.maximumQuantityReached, 'error' );
-				return;
-			}
-
-			state.isLoading = true;
-
-			try {
-				const api = createCartApiRequests( {
-					storeApiBase: state.storeApiBase,
-					storeApiNonce: state.storeApiNonce,
-				} );
-
-				const response = yield fetch( ...api.updateItemQuantity( ctx.item.key, newQuantity ) );
-
-				if ( ! response.ok ) {
-					const errorData = yield response.json();
-					const errorMessage =
-						errorData.message || state.i18n.failedToIncreaseQty;
-
-					actions.showToast( errorMessage, 'error' );
-					state.isLoading = false;
-					return;
-				}
-
-				// Item update endpoint returns single item, not full cart
-				// So we need to refresh the entire cart
-				yield response.json(); // Consume the response
+				// Refresh to restore the correct server quantities.
 				yield actions.refreshCart();
-
-				// Dispatch custom event
-				document.dispatchEvent(
-					new CustomEvent( 'scrt:item-quantity-changed', {
-						detail: { key: ctx.item.key, quantity: newQuantity },
-					} )
-				);
-			} catch ( error ) {
-				console.error(
-					'Side Cart: Failed to increase quantity',
-					error
-				);
-				actions.showToast(
-					error.message || state.i18n.failedToIncreaseQty,
-					'error'
-				);
 			} finally {
 				state.isLoading = false;
-			}
-		},
+				pendingQuantities.delete( itemKey );
 
-		*decreaseQuantity() {
-			const ctx = getContext();
-			const newQuantity = ctx.item.quantity - 1;
-
-			if ( newQuantity < 1 ) {
-				return;
-			}
-
-			state.isLoading = true;
-
-			try {
-				const api = createCartApiRequests( {
-					storeApiBase: state.storeApiBase,
-					storeApiNonce: state.storeApiNonce,
-				} );
-
-				const response = yield fetch( ...api.updateItemQuantity( ctx.item.key, newQuantity ) );
-
-				if ( ! response.ok ) {
-					const errorData = yield response.json();
-					throw new Error(
-						errorData.message || state.i18n.failedToDecreaseQty
-					);
+				// Re-focus the quantity input if it was focused before the update.
+				// Query the live DOM by item key (via data-item-key set by the
+				// template) instead of using a stored reference, because
+				// refreshCart() may have replaced the DOM node via data-wp-each.
+				if ( refocusTargets.has( itemKey ) ) {
+					refocusTargets.delete( itemKey );
+					requestAnimationFrame( () => {
+						const input = document.querySelector(
+							`.scrt-qty-input[data-item-key="${ itemKey }"]`
+						);
+						if ( input ) {
+							input.focus();
+						}
+					} );
+				} else if ( buttonRefocusTargets.has( itemKey ) ) {
+					const side = buttonRefocusTargets.get( itemKey );
+					buttonRefocusTargets.delete( itemKey );
+					requestAnimationFrame( () => {
+						const btn = document.querySelector(
+							`.scrt-qty-btn--${ side }[data-item-key="${ itemKey }"]`
+						);
+						if ( btn ) {
+							btn.focus();
+						}
+					} );
 				}
-
-				// Item update endpoint returns single item, not full cart
-				// So we need to refresh the entire cart
-				yield response.json(); // Consume the response
-				yield actions.refreshCart();
-
-				// Dispatch custom event
-				document.dispatchEvent(
-					new CustomEvent( 'scrt:item-quantity-changed', {
-						detail: { key: ctx.item.key, quantity: newQuantity },
-					} )
-				);
-			} catch ( error ) {
-				console.error(
-					'Side Cart: Failed to decrease quantity',
-					error
-				);
-				actions.showToast(
-					error.message || state.i18n.failedToDecreaseQty,
-					'error'
-				);
-			} finally {
-				state.isLoading = false;
 			}
 		},
 

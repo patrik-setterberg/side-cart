@@ -152,6 +152,7 @@ $drawer_classes = apply_filters(
 											class="scrt-qty-btn scrt-qty-btn--minus"
 											type="button"
 											aria-label="<?php esc_attr_e( 'Decrease quantity', 'side-cart' ); ?>"
+											data-wp-bind--data-item-key="context.item.key"
 											data-wp-on--click="actions.decreaseQuantity"
 											data-wp-bind--disabled="context.item.quantity <= 1 || state.isLoading"
 										>
@@ -163,6 +164,7 @@ $drawer_classes = apply_filters(
 											min="1"
 											data-wp-bind--max="context.item.maxQty"
 											data-wp-bind--value="context.item.quantity"
+											data-wp-bind--data-item-key="context.item.key"
 											data-wp-on--change="actions.updateQuantity"
 											data-wp-bind--disabled="state.isLoading"
 											aria-label="<?php esc_attr_e( 'Quantity', 'side-cart' ); ?>"
@@ -171,6 +173,7 @@ $drawer_classes = apply_filters(
 											class="scrt-qty-btn scrt-qty-btn--plus"
 											type="button"
 											aria-label="<?php esc_attr_e( 'Increase quantity', 'side-cart' ); ?>"
+											data-wp-bind--data-item-key="context.item.key"
 											data-wp-on--click="actions.increaseQuantity"
 											data-wp-bind--disabled="context.item.quantity >= context.item.maxQty || state.isLoading"
 										>
