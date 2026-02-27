@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect, useRef } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import {
 	TabPanel,
@@ -347,6 +347,15 @@ function GeneralTab({ settings, updateSetting }) {
 						value={settings.drawer_heading_text}
 						onChange={(value) =>
 							updateSetting('drawer_heading_text', value)
+						}
+						disabled={!settings.show_drawer_heading}
+					/>
+					<ToggleControl
+						label={__('Show item count in header', 'side-cart')}
+						help={__('Appends "(X items)" to the heading text.', 'side-cart')}
+						checked={settings.show_item_count_in_header}
+						onChange={(value) =>
+							updateSetting('show_item_count_in_header', value)
 						}
 						disabled={!settings.show_drawer_heading}
 					/>

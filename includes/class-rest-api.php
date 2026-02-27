@@ -158,6 +158,10 @@ class Rest_API {
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			),
+			'show_item_count_in_header'     => array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
 
 			// Drawer Body
 			'show_free_shipping_bar'        => array(
@@ -486,6 +490,7 @@ class Rest_API {
 			// Drawer Header
 			'show_drawer_heading'           => true,
 			'drawer_heading_text'           => __( 'Your Cart', 'side-cart' ),
+			'show_item_count_in_header'     => true,
 
 			// Drawer Body
 			'show_free_shipping_bar'        => true,

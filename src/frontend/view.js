@@ -18,7 +18,7 @@ import {
 	initCustomTriggers,
 } from './utils/ui-helpers';
 
-const { state, actions, callbacks } = store( 'side-cart', {
+const { state, actions } = store( 'side-cart', {
 	state: {
 		// Derived state — must be defined here (inside store) to be reactive.
 
@@ -35,10 +35,11 @@ const { state, actions, callbacks } = store( 'side-cart', {
 
 		get headerText() {
 			const count = state.totalUniqueItems;
-			if ( count === 0 ) {
-				return 'Your Cart';
+			if ( count === 0 || ! state.showItemCountInHeader ) {
+				return state.drawerHeadingText;
 			}
-			return `Your Cart (${ count } ${ count === 1 ? 'item' : 'items' })`;
+			const word = count === 1 ? state.headerItemSingular : state.headerItemPlural;
+			return `${ state.drawerHeadingText } (${ count } ${ word })`;
 		},
 
 		get freeShippingRemaining() {
