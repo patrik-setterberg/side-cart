@@ -115,6 +115,12 @@ $drawer_classes = apply_filters(
 									</div>
 								<?php endif; ?>
 
+								<?php if ( $settings['show_item_stock_status'] ) : ?>
+									<div class="scrt-item__stock" data-wp-bind--data-status="context.item.stockStatus">
+										<span data-wp-text="context.item.stockStatusLabel"></span>
+									</div>
+								<?php endif; ?>
+
 								<?php if ( $settings['show_item_variation'] ) : ?>
 									<div class="scrt-item__variation" data-wp-bind--hidden="!context.item.variation || context.item.variation.length === 0">
 										<ul class="scrt-item__variation-list">
@@ -204,6 +210,19 @@ $drawer_classes = apply_filters(
 				<?php endif; ?>
 				<p class="scrt-empty__message"><?php echo esc_html( $settings['empty_state_message'] ); ?></p>
 			</div>
+
+			<?php if ( $settings['show_empty_cart_button'] ) : ?>
+				<div class="scrt-empty-cart-wrap" data-wp-bind--hidden="!state.hasItems">
+					<button
+						class="scrt-button scrt-button--text scrt-button--empty-cart"
+						type="button"
+						data-wp-on--click="actions.emptyCart"
+						data-wp-bind--disabled="state.isLoading"
+					>
+						<?php esc_html_e( 'Empty Cart', 'side-cart' ); ?>
+					</button>
+				</div>
+			<?php endif; ?>
 
 			<?php do_action( 'scrt_after_cart_items', $settings ); ?>
 		</div>
@@ -334,17 +353,7 @@ $drawer_classes = apply_filters(
 						</button>
 					<?php endif; ?>
 
-					<?php if ( $settings['show_empty_cart_button'] ) : ?>
-						<button
-							class="scrt-button scrt-button--text scrt-button--empty-cart"
-							type="button"
-							data-wp-on--click="actions.emptyCart"
-							data-wp-bind--disabled="state.isLoading"
-						>
-							<?php esc_html_e( 'Empty Cart', 'side-cart' ); ?>
-						</button>
-					<?php endif; ?>
-				</div>
+					</div>
 			</div>
 		</div>
 

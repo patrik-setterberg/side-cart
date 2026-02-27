@@ -395,6 +395,13 @@ function GeneralTab({ settings, updateSetting }) {
 							updateSetting('empty_state_message', value)
 						}
 					/>
+					<ToggleControl
+						label={__('Show "Empty cart" button', 'side-cart')}
+						checked={settings.show_empty_cart_button}
+						onChange={(value) =>
+							updateSetting('show_empty_cart_button', value)
+						}
+					/>
 				</CardBody>
 			</Card>
 
@@ -420,6 +427,13 @@ function GeneralTab({ settings, updateSetting }) {
 						checked={settings.show_item_sku}
 						onChange={(value) =>
 							updateSetting('show_item_sku', value)
+						}
+					/>
+					<ToggleControl
+						label={__('Show stock status', 'side-cart')}
+						checked={settings.show_item_stock_status}
+						onChange={(value) =>
+							updateSetting('show_item_stock_status', value)
 						}
 					/>
 					<ToggleControl
@@ -465,6 +479,50 @@ function GeneralTab({ settings, updateSetting }) {
 					/>
 				</CardBody>
 			</Card>
+
+			{settings.show_item_stock_status && (
+				<Card>
+					<CardBody>
+						<h2>{__('Stock Status Labels', 'side-cart')}</h2>
+						<ToggleControl
+							label={__('Override stock status labels', 'side-cart')}
+							help={__('By default, WooCommerce\'s built-in labels are used.', 'side-cart')}
+							checked={settings.stock_status_label_override}
+							onChange={(value) =>
+								updateSetting('stock_status_label_override', value)
+							}
+						/>
+						{settings.stock_status_label_override && (
+							<>
+								<TextControl
+									label={__('In stock label', 'side-cart')}
+									value={settings.stock_status_label_instock}
+									placeholder={__('In stock', 'side-cart')}
+									onChange={(value) =>
+										updateSetting('stock_status_label_instock', value)
+									}
+								/>
+								<TextControl
+									label={__('Out of stock label', 'side-cart')}
+									value={settings.stock_status_label_outofstock}
+									placeholder={__('Out of stock', 'side-cart')}
+									onChange={(value) =>
+										updateSetting('stock_status_label_outofstock', value)
+									}
+								/>
+								<TextControl
+									label={__('On backorder label', 'side-cart')}
+									value={settings.stock_status_label_onbackorder}
+									placeholder={__('Available on backorder', 'side-cart')}
+									onChange={(value) =>
+										updateSetting('stock_status_label_onbackorder', value)
+									}
+								/>
+							</>
+						)}
+					</CardBody>
+				</Card>
+			)}
 
 			<Card>
 				<CardBody>
@@ -528,13 +586,6 @@ function GeneralTab({ settings, updateSetting }) {
 			<Card>
 				<CardBody>
 					<h2>{__('Drawer Footer', 'side-cart')}</h2>
-					<ToggleControl
-						label={__('Show "Empty cart" button', 'side-cart')}
-						checked={settings.show_empty_cart_button}
-						onChange={(value) =>
-							updateSetting('show_empty_cart_button', value)
-						}
-					/>
 					<ToggleControl
 						label={__('Show "View cart" button', 'side-cart')}
 						checked={settings.show_view_cart_button}

@@ -177,6 +177,21 @@ class Cart_Renderer {
 			return $this->get_empty_state();
 		}
 
+		// Compute stock status labels - use WooCommerce defaults or custom overrides.
+		$wc_stock_labels     = wc_get_product_stock_status_options();
+		$override            = ! empty( $this->settings['stock_status_label_override'] );
+		$stock_status_labels = array(
+			'instock'     => ( $override && ! empty( $this->settings['stock_status_label_instock'] ) )
+				? $this->settings['stock_status_label_instock']
+				: $wc_stock_labels['instock'],
+			'outofstock'  => ( $override && ! empty( $this->settings['stock_status_label_outofstock'] ) )
+				? $this->settings['stock_status_label_outofstock']
+				: $wc_stock_labels['outofstock'],
+			'onbackorder' => ( $override && ! empty( $this->settings['stock_status_label_onbackorder'] ) )
+				? $this->settings['stock_status_label_onbackorder']
+				: $wc_stock_labels['onbackorder'],
+		);
+
 		$items = array();
 
 		foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) {
@@ -223,8 +238,10 @@ class Cart_Renderer {
 				'lineTotal'    => html_entity_decode( $formatted_total, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
 				'thumbnailUrl' => $thumbnail_url,
 				'permalink'    => $product->get_permalink(),
-				'sku'          => $product->get_sku(),
-				'maxQty'       => $max_qty,
+				'sku'              => $product->get_sku(),
+				'maxQty'           => $max_qty,
+				'stockStatus'      => $product->get_stock_status(),
+				'stockStatusLabel' => $stock_status_labels[ $product->get_stock_status() ] ?? $product->get_stock_status(),
 			);
 
 			// Add variation data if applicable.
@@ -252,6 +269,7 @@ class Cart_Renderer {
 		$state = array(
 			'isOpen'                => false,
 			'isLoading'             => false,
+			'autoOpen'              => (bool) $this->settings['auto_open'],
 			'items'                 => $items,
 			'totalItems'            => $cart->get_cart_contents_count(),
 			'totalUniqueItems'      => count( $cart->get_cart() ),
@@ -265,6 +283,7 @@ class Cart_Renderer {
 			'storeApiBase'          => esc_url_raw( rest_url( 'wc/store/v1/' ) ),
 			'customTriggerSelector' => $this->settings['custom_trigger_selector'],
 			'badgeCountMode'        => $this->settings['badge_count_mode'],
+			'stockStatusLabels'     => $stock_status_labels,
 			'appliedCoupons'        => $cart->get_applied_coupons(),
 			'toasts'                => array(),
 			'lastError'             => null,
@@ -279,9 +298,26 @@ class Cart_Renderer {
 	 * @return array
 	 */
 	private function get_empty_state(): array {
+		// Compute stock status labels so refreshCart() works after an AJAX add-to-cart
+		// even when the cart was empty on page load.
+		$wc_stock_labels     = function_exists( 'wc_get_product_stock_status_options' ) ? wc_get_product_stock_status_options() : array();
+		$override            = ! empty( $this->settings['stock_status_label_override'] );
+		$stock_status_labels = array(
+			'instock'     => ( $override && ! empty( $this->settings['stock_status_label_instock'] ) )
+				? $this->settings['stock_status_label_instock']
+				: ( $wc_stock_labels['instock'] ?? 'In stock' ),
+			'outofstock'  => ( $override && ! empty( $this->settings['stock_status_label_outofstock'] ) )
+				? $this->settings['stock_status_label_outofstock']
+				: ( $wc_stock_labels['outofstock'] ?? 'Out of stock' ),
+			'onbackorder' => ( $override && ! empty( $this->settings['stock_status_label_onbackorder'] ) )
+				? $this->settings['stock_status_label_onbackorder']
+				: ( $wc_stock_labels['onbackorder'] ?? 'On backorder' ),
+		);
+
 		return array(
 			'isOpen'                => false,
 			'isLoading'             => false,
+			'autoOpen'              => (bool) $this->settings['auto_open'],
 			'items'                 => array(),
 			'totalItems'            => 0,
 			'totalUniqueItems'      => 0,
@@ -295,6 +331,7 @@ class Cart_Renderer {
 			'storeApiBase'          => esc_url_raw( rest_url( 'wc/store/v1/' ) ),
 			'customTriggerSelector' => $this->settings['custom_trigger_selector'],
 			'badgeCountMode'        => $this->settings['badge_count_mode'],
+			'stockStatusLabels'     => $stock_status_labels,
 			'appliedCoupons'        => array(),
 			'toasts'                => array(),
 			'lastError'             => null,

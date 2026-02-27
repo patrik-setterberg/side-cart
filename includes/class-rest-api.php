@@ -194,6 +194,26 @@ class Rest_API {
 				'type'              => 'boolean',
 				'sanitize_callback' => 'rest_sanitize_boolean',
 			),
+			'show_item_stock_status'        => array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
+			'stock_status_label_override'   => array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
+			'stock_status_label_instock'    => array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'stock_status_label_outofstock' => array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'stock_status_label_onbackorder' => array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
 			'show_item_price'               => array(
 				'type'              => 'boolean',
 				'sanitize_callback' => 'rest_sanitize_boolean',
@@ -478,6 +498,11 @@ class Rest_API {
 			'show_item_image'               => true,
 			'show_item_name'                => true,
 			'show_item_sku'                 => false,
+			'show_item_stock_status'        => false,
+			'stock_status_label_override'   => false,
+			'stock_status_label_instock'    => '',
+			'stock_status_label_outofstock' => '',
+			'stock_status_label_onbackorder' => '',
 			'show_item_price'               => true,
 			'item_price_mode'               => 'individual',
 			'show_item_variation'           => false,

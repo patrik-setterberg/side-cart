@@ -11,7 +11,6 @@ import './view.css';
 import { store, getContext } from '@wordpress/interactivity';
 import { createCartApiRequests } from './api/cart-api';
 import { transformCartToState } from './utils/cart-transformers';
-import { createComputedState } from './state/computed';
 import {
 	createToastHelpers,
 	initFocusTrap,
@@ -21,7 +20,67 @@ import {
 
 const { state, actions, callbacks } = store( 'side-cart', {
 	state: {
-		// Computed getters - created dynamically below
+		// Derived state — must be defined here (inside store) to be reactive.
+
+		get hasItems() {
+			return state.items && state.items.length > 0;
+		},
+
+		get badgeCount() {
+			if ( state.badgeCountMode === 'unique' ) {
+				return state.totalUniqueItems;
+			}
+			return state.totalItems;
+		},
+
+		get headerText() {
+			const count = state.totalUniqueItems;
+			if ( count === 0 ) {
+				return 'Your Cart';
+			}
+			return `Your Cart (${ count } ${ count === 1 ? 'item' : 'items' })`;
+		},
+
+		get freeShippingRemaining() {
+			if ( ! state.freeShippingThreshold ) {
+				return 0;
+			}
+			const subtotalNum = parseFloat(
+				state.subtotal.replace( /[^\d.-]/g, '' )
+			);
+			return Math.max( 0, state.freeShippingThreshold - subtotalNum );
+		},
+
+		get freeShippingPercent() {
+			if ( ! state.freeShippingThreshold ) {
+				return 0;
+			}
+			const subtotalNum = parseFloat(
+				state.subtotal.replace( /[^\d.-]/g, '' )
+			);
+			const percent =
+				( subtotalNum / state.freeShippingThreshold ) * 100;
+			return Math.min( 100, Math.max( 0, percent ) );
+		},
+
+		get freeShippingMessage() {
+			if ( ! state.freeShippingThreshold ) {
+				return '';
+			}
+			const remaining = state.freeShippingRemaining;
+			if ( remaining <= 0 ) {
+				return state.freeShippingSuccessMessage;
+			}
+			// Replace {amount} placeholder
+			const amount = new Intl.NumberFormat( 'en-US', {
+				style: 'currency',
+				currency: 'USD',
+			} ).format( remaining );
+			return state.freeShippingProgressMessage.replace(
+				'{amount}',
+				amount
+			);
+		},
 	},
 
 	actions: {
@@ -403,7 +462,7 @@ const { state, actions, callbacks } = store( 'side-cart', {
 		},
 
 		updateStateFromCart( cart ) {
-			const transformed = transformCartToState( cart );
+			const transformed = transformCartToState( cart, state.stockStatusLabels );
 
 			state.items = transformed.items;
 			state.totalItems = transformed.totalItems;
@@ -445,13 +504,20 @@ const { state, actions, callbacks } = store( 'side-cart', {
 	},
 } );
 
-// Add computed state getters to the state object
-Object.defineProperties( state, Object.getOwnPropertyDescriptors( createComputedState( state ) ) );
-
-// Listen for WooCommerce add-to-cart event
-if ( typeof jQuery !== 'undefined' ) {
-	jQuery( document.body ).on( 'added_to_cart', () => {
-		actions.refreshCart();
+/**
+ * Handle the add-to-cart event: refresh cart data and auto-open if enabled.
+ */
+function handleAddedToCart() {
+	actions.refreshCart();
+	if ( state.autoOpen ) {
 		actions.open();
-	} );
+	}
 }
+
+// AJAX add-to-cart on classic WooCommerce shop/archive pages.
+if ( typeof jQuery !== 'undefined' ) {
+	jQuery( document.body ).on( 'added_to_cart', handleAddedToCart );
+}
+
+// WooCommerce Blocks add-to-cart (product blocks, All Products block, etc.).
+document.body.addEventListener( 'wc-blocks_added_to_cart', handleAddedToCart );

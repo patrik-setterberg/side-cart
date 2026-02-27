@@ -81,10 +81,11 @@ export function formatPrice( priceStr, currencyData ) {
 /**
  * Transform a cart item from Store API format to state format
  *
- * @param {Object} item - Cart item from Store API
+ * @param {Object} item              - Cart item from Store API
+ * @param {Object} stockStatusLabels - Label map, e.g. { instock: 'In stock', ... }
  * @return {Object} Transformed cart item
  */
-export function transformCartItem( item ) {
+export function transformCartItem( item, stockStatusLabels = {} ) {
 	// Format variation data for the template
 	let variation = null;
 	if (
@@ -105,6 +106,8 @@ export function transformCartItem( item ) {
 	const rawPrices = item.prices?.raw_prices || {};
 	const precision = rawPrices.precision || currencyData.currency_minor_unit || 2;
 
+	const stockStatus = item.stock_status || 'instock';
+
 	return {
 		key: item.key,
 		productId: item.id,
@@ -119,6 +122,8 @@ export function transformCartItem( item ) {
 		permalink: item.permalink,
 		sku: item.sku || '',
 		maxQty: item.quantity_limits?.maximum || 9999,
+		stockStatus,
+		stockStatusLabel: stockStatusLabels[ stockStatus ] || stockStatus,
 		variation,
 	};
 }
@@ -126,12 +131,13 @@ export function transformCartItem( item ) {
 /**
  * Transform full cart data from Store API to state format
  *
- * @param {Object} cart - Cart data from Store API
+ * @param {Object} cart              - Cart data from Store API
+ * @param {Object} stockStatusLabels - Label map passed from Interactivity state
  * @return {Object} Transformed cart state
  */
-export function transformCartToState( cart ) {
+export function transformCartToState( cart, stockStatusLabels = {} ) {
 	// Map items
-	const items = cart.items?.map( transformCartItem ) || [];
+	const items = cart.items?.map( ( item ) => transformCartItem( item, stockStatusLabels ) ) || [];
 
 	// Format totals - Store API returns totals as plain display strings (e.g., "394" = 394 kr)
 	// Unlike item prices, these don't use precision and are already in display format

@@ -350,6 +350,23 @@
 	margin-bottom: 4px;
 }
 
+.scrt-item__stock {
+	font-size: 12px;
+	margin-bottom: 4px;
+}
+
+.scrt-item__stock[data-status="instock"] {
+	color: #3d8a3d;
+}
+
+.scrt-item__stock[data-status="outofstock"] {
+	color: #cc3333;
+}
+
+.scrt-item__stock[data-status="onbackorder"] {
+	color: #b07a00;
+}
+
 .scrt-item__variation {
 	margin-bottom: 8px;
 }
@@ -677,6 +694,12 @@
 
 .scrt-button--text:hover {
 	color: var(--scrt-drawer-color);
+}
+
+.scrt-empty-cart-wrap {
+	display: flex;
+	justify-content: center;
+	padding: 8px 0 4px;
 }
 
 .scrt-button:disabled {
