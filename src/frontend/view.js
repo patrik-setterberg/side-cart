@@ -132,7 +132,7 @@ const { state, actions } = store( 'side-cart', {
 				);
 			} catch ( error ) {
 				console.error( 'Side Cart: Failed to refresh cart', error );
-				actions.showToast( 'Failed to update cart', 'error' );
+				actions.showToast( state.i18n.failedToUpdateCart, 'error' );
 			} finally {
 				state.isLoading = false;
 			}
@@ -156,14 +156,17 @@ const { state, actions } = store( 'side-cart', {
 				if ( ! response.ok ) {
 					const errorData = yield response.json();
 					throw new Error(
-						errorData.message || 'Failed to remove item'
+						errorData.message || state.i18n.failedToRemoveItem
 					);
 				}
 
 				const cart = yield response.json();
 				actions.updateStateFromCart( cart );
 
-				actions.showToast( `${ itemName } removed from cart`, 'success' );
+				actions.showToast(
+					state.i18n.itemRemovedFromCart.replace( '%s', itemName ),
+					'success'
+				);
 
 				// Dispatch custom event
 				document.dispatchEvent(
@@ -174,7 +177,7 @@ const { state, actions } = store( 'side-cart', {
 			} catch ( error ) {
 				console.error( 'Side Cart: Failed to remove item', error );
 				actions.showToast(
-					error.message || 'Failed to remove item',
+					error.message || state.i18n.failedToRemoveItem,
 					'error'
 				);
 			} finally {
@@ -192,7 +195,7 @@ const { state, actions } = store( 'side-cart', {
 			}
 
 			if ( newQuantity > ctx.item.maxQty ) {
-				actions.showToast( 'Quantity exceeds stock limit', 'error' );
+				actions.showToast( state.i18n.quantityExceedsStock, 'error' );
 				event.target.value = ctx.item.quantity;
 				return;
 			}
@@ -209,7 +212,8 @@ const { state, actions } = store( 'side-cart', {
 
 				if ( ! response.ok ) {
 					const errorData = yield response.json();
-					const errorMessage = errorData.message || 'Failed to update quantity';
+					const errorMessage =
+						errorData.message || state.i18n.failedToUpdateQuantity;
 
 					actions.showToast( errorMessage, 'error' );
 
@@ -236,7 +240,7 @@ const { state, actions } = store( 'side-cart', {
 					error
 				);
 				actions.showToast(
-					error.message || 'Failed to update quantity',
+					error.message || state.i18n.failedToUpdateQuantity,
 					'error'
 				);
 				event.target.value = ctx.item.quantity;
@@ -250,7 +254,7 @@ const { state, actions } = store( 'side-cart', {
 			const newQuantity = ctx.item.quantity + 1;
 
 			if ( newQuantity > ctx.item.maxQty ) {
-				actions.showToast( 'Maximum quantity reached', 'error' );
+				actions.showToast( state.i18n.maximumQuantityReached, 'error' );
 				return;
 			}
 
@@ -266,7 +270,8 @@ const { state, actions } = store( 'side-cart', {
 
 				if ( ! response.ok ) {
 					const errorData = yield response.json();
-					const errorMessage = errorData.message || 'Failed to increase quantity';
+					const errorMessage =
+						errorData.message || state.i18n.failedToIncreaseQty;
 
 					actions.showToast( errorMessage, 'error' );
 					state.isLoading = false;
@@ -290,7 +295,7 @@ const { state, actions } = store( 'side-cart', {
 					error
 				);
 				actions.showToast(
-					error.message || 'Failed to increase quantity',
+					error.message || state.i18n.failedToIncreaseQty,
 					'error'
 				);
 			} finally {
@@ -319,7 +324,7 @@ const { state, actions } = store( 'side-cart', {
 				if ( ! response.ok ) {
 					const errorData = yield response.json();
 					throw new Error(
-						errorData.message || 'Failed to decrease quantity'
+						errorData.message || state.i18n.failedToDecreaseQty
 					);
 				}
 
@@ -340,7 +345,7 @@ const { state, actions } = store( 'side-cart', {
 					error
 				);
 				actions.showToast(
-					error.message || 'Failed to decrease quantity',
+					error.message || state.i18n.failedToDecreaseQty,
 					'error'
 				);
 			} finally {
@@ -371,7 +376,7 @@ const { state, actions } = store( 'side-cart', {
 				if ( ! response.ok ) {
 					const errorData = yield response.json();
 					throw new Error(
-						errorData.message || 'Failed to apply coupon'
+						errorData.message || state.i18n.failedToApplyCoupon
 					);
 				}
 
@@ -379,11 +384,11 @@ const { state, actions } = store( 'side-cart', {
 				actions.updateStateFromCart( cart );
 
 				inputEl.value = '';
-				actions.showToast( 'Coupon applied successfully', 'success' );
+				actions.showToast( state.i18n.couponApplied, 'success' );
 			} catch ( error ) {
 				console.error( 'Side Cart: Failed to apply coupon', error );
 				actions.showToast(
-					error.message || 'Failed to apply coupon',
+					error.message || state.i18n.failedToApplyCoupon,
 					'error'
 				);
 			} finally {
@@ -408,18 +413,18 @@ const { state, actions } = store( 'side-cart', {
 				if ( ! response.ok ) {
 					const errorData = yield response.json();
 					throw new Error(
-						errorData.message || 'Failed to remove coupon'
+						errorData.message || state.i18n.failedToRemoveCoupon
 					);
 				}
 
 				const cart = yield response.json();
 				actions.updateStateFromCart( cart );
 
-				actions.showToast( 'Coupon removed', 'success' );
+				actions.showToast( state.i18n.couponRemoved, 'success' );
 			} catch ( error ) {
 				console.error( 'Side Cart: Failed to remove coupon', error );
 				actions.showToast(
-					error.message || 'Failed to remove coupon',
+					error.message || state.i18n.failedToRemoveCoupon,
 					'error'
 				);
 			} finally {
@@ -428,11 +433,7 @@ const { state, actions } = store( 'side-cart', {
 		},
 
 		*emptyCart() {
-			if (
-				! window.confirm(
-					'Are you sure you want to empty your cart?'
-				)
-			) {
+			if ( ! window.confirm( state.i18n.emptyCartConfirm ) ) {
 				return;
 			}
 
@@ -453,10 +454,10 @@ const { state, actions } = store( 'side-cart', {
 				const cart = yield response.json();
 				actions.updateStateFromCart( cart );
 
-				actions.showToast( 'Cart emptied', 'success' );
+				actions.showToast( state.i18n.cartEmptied, 'success' );
 			} catch ( error ) {
 				console.error( 'Side Cart: Failed to empty cart', error );
-				actions.showToast( 'Failed to empty cart', 'error' );
+				actions.showToast( state.i18n.failedToEmptyCart, 'error' );
 			} finally {
 				state.isLoading = false;
 			}
