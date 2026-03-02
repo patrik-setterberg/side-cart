@@ -211,7 +211,7 @@ export default function DrawerPreview({ settings }) {
 
   const drawerClasses = [
     "scrt-drawer",
-    `scrt-drawer--${settings.drawer_position || "right"}`,
+    "scrt-drawer--right",
     "scrt-drawer--animation-none",
   ].join(" ");
 

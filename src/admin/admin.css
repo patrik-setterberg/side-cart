@@ -64,6 +64,7 @@
   background: #f5f6f7;
   border-radius: 8px 8px 0 0;
   display: flex;
+  overflow-x: auto;
   align-items: center;
   gap: 2px;
 }
@@ -202,6 +203,7 @@
 
 .scrt-admin__settings {
   position: relative;
+  overflow-x: hidden;
 }
 
 /* ============================================================
@@ -302,7 +304,6 @@
 
   .scrt-tab-panel .components-tab-panel__tabs {
     padding: 8px;
-    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
 

@@ -295,6 +295,9 @@ function GeneralTab({ settings, updateSetting }) {
               { label: __("Bottom Left", "side-cart"), value: "bottom-left" },
             ]}
             onChange={(value) => updateSetting("basket_position", value)}
+            help={settings.basket_position === "bottom-left"
+              ? __("Position is only visible on the frontend — the preview always shows the basket on the right.", "side-cart")
+              : undefined}
           />
           <SelectControl
             label={__("Drawer position", "side-cart")}
@@ -304,6 +307,9 @@ function GeneralTab({ settings, updateSetting }) {
               { label: __("Left", "side-cart"), value: "left" },
             ]}
             onChange={(value) => updateSetting("drawer_position", value)}
+            help={settings.drawer_position === "left"
+              ? __("Position is only visible on the frontend — the preview always shows the drawer on the right.", "side-cart")
+              : undefined}
           />
           <SelectControl
             label={__("Badge count mode", "side-cart")}
