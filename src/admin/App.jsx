@@ -9,6 +9,7 @@
 import { useState, useEffect, useRef } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import apiFetch from "@wordpress/api-fetch";
+import DrawerPreview, { BasketPreview, buildCssVars } from "./DrawerPreview";
 import {
   TabPanel,
   ToggleControl,
@@ -30,6 +31,7 @@ export default function App() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [saveMessage, setSaveMessage] = useState(null);
+  const [activeTab, setActiveTab] = useState("general");
   const savedSettingsRef = useRef(null);
 
   // Load settings on mount
@@ -141,8 +143,14 @@ export default function App() {
     );
   }
 
+  const showPreview = ["general", "appearance"].includes(activeTab);
+  const cssVars = buildCssVars(settings);
+
   return (
-    <div className="scrt-admin">
+    <div
+      className={`scrt-admin${showPreview ? " scrt-admin--with-preview" : ""}`}
+      style={showPreview ? cssVars : undefined}
+    >
       <div className="scrt-admin-header">
         <h1>{__("Side Cart Settings", "side-cart")}</h1>
       </div>
@@ -182,72 +190,82 @@ export default function App() {
         </Notice>
       )}
 
-      <TabPanel
-        className="scrt-tab-panel"
-        tabs={[
-          {
-            name: "general",
-            title: __("General", "side-cart"),
-          },
-          {
-            name: "appearance",
-            title: __("Appearance", "side-cart"),
-          },
-          {
-            name: "integrations",
-            title: __("Integrations", "side-cart"),
-          },
-          {
-            name: "advanced",
-            title: __("Advanced", "side-cart"),
-          },
-          {
-            name: "license",
-            title: __("License", "side-cart"),
-          },
-        ]}
-      >
-        {(tab) => (
-          <div className="scrt-tab-content">
-            {tab.name === "general" && (
-              <GeneralTab settings={settings} updateSetting={updateSetting} />
-            )}
-            {tab.name === "appearance" && (
-              <AppearanceTab
-                settings={settings}
-                updateSetting={updateSetting}
-              />
-            )}
-            {tab.name === "integrations" && (
-              <IntegrationsTab
-                settings={settings}
-                updateSetting={updateSetting}
-              />
-            )}
-            {tab.name === "advanced" && (
-              <AdvancedTab
-                settings={settings}
-                updateSetting={updateSetting}
-                onResetDefaults={loadSettings}
-              />
-            )}
-            {tab.name === "license" && (
-              <LicenseTab settings={settings} updateSetting={updateSetting} />
-            )}
+      <div className="scrt-admin__body">
+        <div className="scrt-admin__settings">
+          <TabPanel
+            className="scrt-tab-panel"
+            tabs={[
+              {
+                name: "general",
+                title: __("General", "side-cart"),
+              },
+              {
+                name: "appearance",
+                title: __("Appearance", "side-cart"),
+              },
+              {
+                name: "integrations",
+                title: __("Integrations", "side-cart"),
+              },
+              {
+                name: "advanced",
+                title: __("Advanced", "side-cart"),
+              },
+              {
+                name: "license",
+                title: __("License", "side-cart"),
+              },
+            ]}
+            onSelect={setActiveTab}
+          >
+            {(tab) => (
+              <div className="scrt-tab-content">
+                {tab.name === "general" && (
+                  <GeneralTab settings={settings} updateSetting={updateSetting} />
+                )}
+                {tab.name === "appearance" && (
+                  <AppearanceTab
+                    settings={settings}
+                    updateSetting={updateSetting}
+                  />
+                )}
+                {tab.name === "integrations" && (
+                  <IntegrationsTab
+                    settings={settings}
+                    updateSetting={updateSetting}
+                  />
+                )}
+                {tab.name === "advanced" && (
+                  <AdvancedTab
+                    settings={settings}
+                    updateSetting={updateSetting}
+                    onResetDefaults={loadSettings}
+                  />
+                )}
+                {tab.name === "license" && (
+                  <LicenseTab settings={settings} updateSetting={updateSetting} />
+                )}
 
-            <div className="scrt-tab-footer">
-              <Button
-                variant="primary"
-                onClick={saveSettings}
-                isBusy={isSaving}
-                disabled={isSaving || !isDirty}
-              >
-                {__("Save Changes", "side-cart")}
-              </Button>
-            </div>
-          </div>
-        )}
-      </TabPanel>
+                <div className="scrt-tab-footer">
+                  <Button
+                    variant="primary"
+                    onClick={saveSettings}
+                    isBusy={isSaving}
+                    disabled={isSaving || !isDirty}
+                  >
+                    {__("Save Changes", "side-cart")}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </TabPanel>
+          {showPreview && settings.show_floating_basket && (
+            <BasketPreview settings={settings} />
+          )}
+        </div>
+      </div>
+
+      {showPreview && <DrawerPreview settings={settings} />}
     </div>
   );
 }

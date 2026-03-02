@@ -92,6 +92,18 @@ class Admin {
 			$asset['version']
 		);
 
+		// Enqueue frontend stylesheet so the preview component can use its CSS classes.
+		$frontend_asset_file = SCRT_PLUGIN_DIR . 'build/frontend/view.asset.php';
+		if ( file_exists( $frontend_asset_file ) ) {
+			$frontend_asset = include $frontend_asset_file;
+			wp_enqueue_style(
+				'side-cart-frontend-preview',
+				SCRT_PLUGIN_URL . 'build/frontend/view.css',
+				array(),
+				$frontend_asset['version']
+			);
+		}
+
 		// Pass settings to the React app.
 		wp_localize_script(
 			'side-cart-admin',

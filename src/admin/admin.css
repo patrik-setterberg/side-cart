@@ -6,8 +6,13 @@
 
 .scrt-admin {
   max-width: 1200px;
-  margin: 20px auto;
+  margin: 20px auto 20px 0;
   padding: 0 20px;
+}
+
+.scrt-admin--with-preview {
+  max-width: calc(100% - var(--scrt-drawer-width) - 2rem);
+  margin-right: 0;
 }
 
 .scrt-admin-header {
@@ -127,7 +132,7 @@
 }
 
 .scrt-tab-content .components-base-control__field {
-  max-width: 480px !important;
+  max-width: 320px !important;
 }
 
 #inspector-text-control-0__help {
@@ -136,10 +141,8 @@
 
 .scrt-tab-footer {
   margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid #ddd;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .scrt-color-control {
@@ -193,7 +196,106 @@
   margin: 0 0 20px;
 }
 
+/* ============================================================
+   Settings column
+   ============================================================ */
+
+.scrt-admin__settings {
+  position: relative;
+}
+
+/* ============================================================
+   Live Preview — fixed overlay (CSS var scope container)
+   ============================================================ */
+
+/* Invisible fullscreen container; exists only to scope CSS custom properties
+   to the drawer and basket rendered inside it */
+.scrt-preview {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: transparent;
+}
+
+/* Drawer: restore real fixed positioning, full height below WP admin bar */
+.scrt-preview .scrt-drawer {
+  position: fixed !important;
+  top: 32px !important;
+  height: calc(100vh - 32px) !important;
+  transform: none !important;
+  z-index: 9999 !important;
+  visibility: visible !important;
+}
+
+/* Neutralise WP admin input/button styles inside the preview */
+.scrt-preview .scrt-qty-input {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  height: 28px !important;
+  background: transparent !important;
+  -webkit-appearance: textfield !important;
+  appearance: textfield !important;
+}
+
+.scrt-preview .scrt-qty-input::-webkit-outer-spin-button,
+.scrt-preview .scrt-qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+.scrt-preview .scrt-qty-btn,
+.scrt-preview .scrt-item__remove,
+.scrt-preview .scrt-drawer__close,
+.scrt-preview .scrt-coupon__button,
+.scrt-preview .scrt-button {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Product image placeholder */
+.scrt-preview__image-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #e0e0e0;
+  border-radius: var(--scrt-item-image-radius, 4px);
+}
+
+/* Floating basket — positioned at bottom-right of the settings column */
+.scrt-preview__floating-basket {
+  position: fixed;
+  bottom: 2.25rem;
+  right: calc(var(--scrt-drawer-width) + 2.25rem);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.scrt-preview__floating-basket .scrt-basket {
+  position: relative !important;
+  bottom: auto !important;
+  right: auto !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: auto !important;
+}
+
 @media (max-width: 782px) {
+  .scrt-preview,
+  .scrt-preview__floating-basket {
+    display: none;
+  }
+
+  .scrt-tab-content .components-base-control__field {
+    max-width: 100% !important;
+  }
+
+  .scrt-admin--with-preview {
+    max-width: 100%;
+  }
+
   .scrt-admin {
     padding: 0 10px;
   }
