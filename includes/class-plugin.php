@@ -45,8 +45,9 @@ final class Plugin {
 	 * Wire up all WordPress hooks.
 	 */
 	private function init_hooks(): void {
+        $this->init_components();
+
 		add_action( 'init', array( $this, 'load_textdomain' ) );
-		add_action( 'init', array( $this, 'init_components' ) );
 		add_action( 'admin_init', array( $this, 'check_template_versions' ) );
 	}
 
@@ -64,8 +65,9 @@ final class Plugin {
 			new Assets( $rest_api );
 			new Cart_Renderer( $rest_api );
 			new Trigger_Shortcode();
-			new Trigger_Block();
 		}
+
+        new Trigger_Block();
 
 		// Admin components.
 		if ( is_admin() ) {

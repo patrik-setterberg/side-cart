@@ -3,10 +3,12 @@
  *
  * @package SideCart
  */
-
+import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, TextControl, ToggleControl, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+
+
 
 export default function Edit( { attributes, setAttributes } ) {
 	const { text, showBadge, icon } = attributes;
@@ -118,3 +120,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		</>
 	);
 }
+
+registerBlockType('SIDECARTTEST', {
+  edit: Edit,
+});

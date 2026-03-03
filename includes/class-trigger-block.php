@@ -30,7 +30,7 @@ class Trigger_Block {
 	 */
 	public function register_block(): void {
 		register_block_type(
-			SCRT_PLUGIN_DIR . 'blocks/cart-trigger',
+			SCRT_PLUGIN_DIR . '/build/blocks/cart-trigger',
 			array(
 				'render_callback' => array( $this, 'render_block' ),
 			)
