@@ -233,10 +233,20 @@ class Cart_Renderer {
 			$on_sale             = $product->is_on_sale();
 			$formatted_reg_price = $on_sale ? strip_tags( wc_price( $product->get_regular_price(), $price_args ) ) : '';
 
+            if ($product->is_type('variation')) {
+                $variation = $product;
+                $parentId = $variation->get_parent_id();
+                $parent = wc_get_product($parentId);
+
+                $productName = $parent->get_name();
+            } else {
+                $productName = $product->get_name();
+            }
+
 			$item_data = array(
 				'key'          => $cart_item_key,
 				'productId'    => $cart_item['product_id'],
-				'name'         => html_entity_decode( $product->get_name(), ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+				'name'         => html_entity_decode( $productName, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
 				'quantity'     => $cart_item['quantity'],
 				'price'        => html_entity_decode( $formatted_price, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
 				'regularPrice' => $on_sale ? html_entity_decode( $formatted_reg_price, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) : '',
