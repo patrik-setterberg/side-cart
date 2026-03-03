@@ -264,10 +264,21 @@ class Cart_Renderer {
 			if ( isset( $cart_item['variation'] ) && ! empty( $cart_item['variation'] ) ) {
 				$variation_data = array();
 				foreach ( $cart_item['variation'] as $key => $value ) {
+					$attribute_name = str_replace( 'attribute_', '', $key );
+
+					// Resolve human-readable term name for taxonomy-based attributes.
+					$display_value = $value;
+					if ( taxonomy_exists( $attribute_name ) && ! empty( $value ) ) {
+						$term = get_term_by( 'slug', $value, $attribute_name );
+						if ( $term && ! is_wp_error( $term ) ) {
+							$display_value = $term->name;
+						}
+					}
+
 					$variation_data[] = array(
 						'key'       => $key,
-						'attribute' => wc_attribute_label( $key, $product ),
-						'value'     => $value,
+						'attribute' => wc_attribute_label( $attribute_name, $product ),
+						'value'     => $display_value,
 					);
 				}
 				$item_data['variation'] = $variation_data;

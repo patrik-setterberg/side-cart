@@ -316,6 +316,7 @@
 
 .scrt-item__image a {
   display: block;
+  height: 100%;
 }
 
 .scrt-item__image img {
