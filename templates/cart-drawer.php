@@ -138,6 +138,9 @@ $drawer_classes = apply_filters(
 									<div class="scrt-item__price">
 										<?php if ( 'line_total' === $settings['item_price_mode'] ) : ?>
 											<span data-wp-text="context.item.lineTotal"></span>
+										<?php elseif ( $settings['show_sale_price'] ) : ?>
+											<span data-wp-text="context.item.price"></span>
+											<del class="scrt-item__price-regular" data-wp-bind--hidden="!context.item.onSale" data-wp-text="context.item.regularPrice"></del>
 										<?php else : ?>
 											<span data-wp-text="context.item.price"></span>
 										<?php endif; ?>

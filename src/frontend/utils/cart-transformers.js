@@ -106,6 +106,12 @@ export function transformCartItem( item, stockStatusLabels = {} ) {
 	const rawPrices = item.prices?.raw_prices || {};
 	const precision = rawPrices.precision || currencyData.currency_minor_unit || 2;
 
+	// Detect sale: when sale_price exists and differs from regular_price
+	const onSale =
+		rawPrices.sale_price !== undefined &&
+		rawPrices.sale_price !== '' &&
+		rawPrices.sale_price !== rawPrices.regular_price;
+
 	const stockStatus = item.stock_status || 'instock';
 
 	return {
@@ -114,6 +120,10 @@ export function transformCartItem( item, stockStatusLabels = {} ) {
 		name: decodeHtml( item.name ),
 		quantity: item.quantity,
 		price: formatPrice( rawPrices.price, { ...currencyData, precision } ),
+		regularPrice: onSale
+			? formatPrice( rawPrices.regular_price, { ...currencyData, precision } )
+			: '',
+		onSale,
 		lineTotal: formatPrice(
 			item.totals?.line_total,
 			currencyData

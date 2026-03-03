@@ -446,6 +446,18 @@ function GeneralTab({ settings, updateSetting }) {
               onChange={(value) => updateSetting("item_price_mode", value)}
             />
           )}
+          {settings.show_item_price &&
+            settings.item_price_mode !== "line_total" && (
+              <ToggleControl
+                label={__("Show original price for sale items", "side-cart")}
+                help={__(
+                  "Displays the regular price with strikethrough next to the sale price.",
+                  "side-cart",
+                )}
+                checked={settings.show_sale_price}
+                onChange={(value) => updateSetting("show_sale_price", value)}
+              />
+            )}
           <ToggleControl
             label={__("Show quantity controls", "side-cart")}
             checked={settings.show_item_quantity}

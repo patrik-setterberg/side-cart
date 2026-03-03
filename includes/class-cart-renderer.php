@@ -229,12 +229,18 @@ class Cart_Renderer {
 			$formatted_price = strip_tags( wc_price( $product->get_price(), $price_args ) );
 			$formatted_total = strip_tags( wc_price( $cart_item['line_total'], $price_args ) );
 
+			// Sale price data.
+			$on_sale             = $product->is_on_sale();
+			$formatted_reg_price = $on_sale ? strip_tags( wc_price( $product->get_regular_price(), $price_args ) ) : '';
+
 			$item_data = array(
 				'key'          => $cart_item_key,
 				'productId'    => $cart_item['product_id'],
 				'name'         => html_entity_decode( $product->get_name(), ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
 				'quantity'     => $cart_item['quantity'],
 				'price'        => html_entity_decode( $formatted_price, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+				'regularPrice' => $on_sale ? html_entity_decode( $formatted_reg_price, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) : '',
+				'onSale'       => $on_sale,
 				'lineTotal'    => html_entity_decode( $formatted_total, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
 				'thumbnailUrl' => $thumbnail_url,
 				'permalink'    => $product->get_permalink(),

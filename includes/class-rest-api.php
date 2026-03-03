@@ -227,6 +227,10 @@ class Rest_API {
 				'enum'              => array( 'individual', 'line_total' ),
 				'sanitize_callback' => 'sanitize_text_field',
 			),
+			'show_sale_price'               => array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
 			'show_item_variation'           => array(
 				'type'              => 'boolean',
 				'sanitize_callback' => 'rest_sanitize_boolean',
@@ -510,6 +514,7 @@ class Rest_API {
 			'stock_status_label_onbackorder' => '',
 			'show_item_price'               => true,
 			'item_price_mode'               => 'individual',
+			'show_sale_price'               => true,
 			'show_item_variation'           => false,
 			'show_item_quantity'            => true,
 			'show_item_remove'              => true,

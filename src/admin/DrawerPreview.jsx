@@ -15,8 +15,10 @@ import imgTote from "./images/tote-bag.jpg";
 const MOCK_ITEMS = [
   {
     name: "Premium Leather Wallet",
-    price: "$49.99",
-    lineTotal: "$49.99",
+    price: "$39.99",
+    regularPrice: "$49.99",
+    onSale: true,
+    lineTotal: "$39.99",
     quantity: 1,
     sku: "PLW-001",
     stockStatus: "instock",
@@ -27,6 +29,8 @@ const MOCK_ITEMS = [
   {
     name: "Canvas Tote Bag",
     price: "$24.99",
+    regularPrice: "",
+    onSale: false,
     lineTotal: "$49.98",
     quantity: 2,
     sku: "CTB-002",
@@ -292,9 +296,18 @@ export default function DrawerPreview({ settings }) {
                       )}
                       {settings.show_item_price && (
                         <div className="scrt-item__price">
-                          {settings.item_price_mode === "line_total"
-                            ? item.lineTotal
-                            : item.price}
+                          {settings.item_price_mode === "line_total" ? (
+                            item.lineTotal
+                          ) : settings.show_sale_price && item.onSale ? (
+                            <>
+                              <del className="scrt-item__price-regular">
+                                {item.regularPrice}
+                              </del>
+                              <span>{item.price}</span>
+                            </>
+                          ) : (
+                            item.price
+                          )}
                         </div>
                       )}
                     </div>
