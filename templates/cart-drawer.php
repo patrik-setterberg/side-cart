@@ -122,7 +122,7 @@ $drawer_classes = apply_filters(
 								<?php endif; ?>
 
 								<?php if ( $settings['show_item_variation'] ) : ?>
-									<div class="scrt-item__variation" data-wp-bind--hidden="!context.item.variation || context.item.variation.length === 0">
+									<div class="scrt-item__variation" data-wp-bind--hidden="!context.item.variation">
 										<ul class="scrt-item__variation-list">
 											<template data-wp-each--attr="context.item.variation">
 												<li data-wp-key="context.attr.key">
@@ -245,6 +245,7 @@ $drawer_classes = apply_filters(
 							placeholder="<?php esc_attr_e( 'Coupon code', 'side-cart' ); ?>"
 							data-wp-bind--disabled="state.isLoading"
 							aria-label="<?php esc_attr_e( 'Coupon code', 'side-cart' ); ?>"
+							data-wp-on--keydown="actions.applyCouponOnEnter"
 						/>
 						<button
 							class="scrt-coupon__button"
@@ -301,12 +302,12 @@ $drawer_classes = apply_filters(
 					<?php endif; ?>
 
 					<?php if ( $settings['show_discounts'] ) : ?>
-						<div class="scrt-totals__row scrt-totals__row--discount" data-wp-bind--hidden="state.appliedCoupons.length === 0">
+						<div class="scrt-totals__row scrt-totals__row--discount" data-wp-bind--hidden="!state.hasDiscount">
 							<span class="scrt-totals__label">
 								<?php esc_html_e( 'Discount', 'side-cart' ); ?>
 								<span class="scrt-totals__coupon-codes" data-wp-text="state.appliedCoupons.join(', ')"></span>
 							</span>
-							<span class="scrt-totals__value">−</span>
+							<span class="scrt-totals__value">−<span data-wp-text="state.discountTotal"></span></span>
 						</div>
 					<?php endif; ?>
 

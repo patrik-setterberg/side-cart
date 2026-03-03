@@ -269,8 +269,10 @@ class Cart_Renderer {
 		$free_shipping_threshold = $this->get_free_shipping_threshold();
 
 		// Format totals as plain text for Interactivity API
-		$formatted_subtotal = strip_tags( wc_price( $cart->get_subtotal(), $price_args ) );
-		$formatted_total    = strip_tags( wc_price( $cart->get_total( 'edit' ), $price_args ) );
+		$formatted_subtotal  = strip_tags( wc_price( $cart->get_subtotal(), $price_args ) );
+		$formatted_total     = strip_tags( wc_price( $cart->get_total( 'edit' ), $price_args ) );
+		$discount_amount     = $cart->get_discount_total();
+		$formatted_discount  = strip_tags( wc_price( $discount_amount, $price_args ) );
 
 		$state = array(
 			'isOpen'                       => false,
@@ -305,6 +307,8 @@ class Cart_Renderer {
 			'totalUniqueItems'        => count( $cart->get_cart() ),
 			'subtotal'                => html_entity_decode( $formatted_subtotal, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
 			'cartTotal'               => html_entity_decode( $formatted_total, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+			'discountTotal'           => html_entity_decode( $formatted_discount, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+			'discountAmount'          => (float) $discount_amount,
 			'currency'                => get_woocommerce_currency_symbol(),
 			'freeShippingThreshold'   => $free_shipping_threshold,
 			'cartUrl'                 => wc_get_cart_url(),
@@ -377,6 +381,8 @@ class Cart_Renderer {
 			'totalUniqueItems'        => 0,
 			'subtotal'                => wc_price( 0 ),
 			'cartTotal'               => wc_price( 0 ),
+			'discountTotal'           => wc_price( 0 ),
+			'discountAmount'          => 0.0,
 			'currency'                => get_woocommerce_currency_symbol(),
 			'freeShippingThreshold'   => null,
 			'cartUrl'                 => wc_get_cart_url(),

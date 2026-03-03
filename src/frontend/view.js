@@ -32,6 +32,10 @@ const { state, actions } = store( 'side-cart', {
 			return state.items && state.items.length > 0;
 		},
 
+		get hasDiscount() {
+			return state.discountAmount > 0;
+		},
+
 		get badgeCount() {
 			if ( state.badgeCountMode === 'unique' ) {
 				return state.totalUniqueItems;
@@ -371,6 +375,12 @@ const { state, actions } = store( 'side-cart', {
 			}
 		},
 
+		applyCouponOnEnter( event ) {
+			if ( event.key === 'Enter' ) {
+				actions.applyCoupon( event );
+			}
+		},
+
 		*applyCoupon( event ) {
 			const inputEl = event.target
 				.closest( '.scrt-coupon__input-group' )
@@ -489,6 +499,8 @@ const { state, actions } = store( 'side-cart', {
 			state.totalUniqueItems = transformed.totalUniqueItems;
 			state.subtotal = transformed.subtotal;
 			state.cartTotal = transformed.cartTotal;
+			state.discountTotal = transformed.discountTotal;
+			state.discountAmount = transformed.discountAmount;
 			state.appliedCoupons = transformed.appliedCoupons;
 		},
 

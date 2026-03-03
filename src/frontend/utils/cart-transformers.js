@@ -157,12 +157,17 @@ export function transformCartToState( cart, stockStatusLabels = {} ) {
 	const symbol = totalsCurrency?.currency_symbol || 'kr';
 	const suffix = totalsCurrency?.currency_suffix || '';
 
+	const discountValue = cart.totals?.total_discount || '0';
+	const discountAmount = parseFloat( discountValue );
+
 	return {
 		items,
 		totalItems: cart.items_count || 0,
 		totalUniqueItems: cart.items?.length || 0,
 		subtotal: suffix ? `${ subtotalValue }${ suffix }` : `${ subtotalValue } ${ symbol }`,
 		cartTotal: suffix ? `${ totalValue }${ suffix }` : `${ totalValue } ${ symbol }`,
+		discountTotal: suffix ? `${ discountValue }${ suffix }` : `${ discountValue } ${ symbol }`,
+		discountAmount,
 		appliedCoupons: cart.coupons?.map( ( c ) => c.code ) || [],
 	};
 }
