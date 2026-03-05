@@ -193,6 +193,12 @@
   border-radius: 4px;
 }
 
+.scrt-color-control__picker-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
 .components-notice {
   margin: 0 0 20px;
 }

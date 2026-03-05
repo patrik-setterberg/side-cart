@@ -165,6 +165,7 @@ class Assets {
 			'item_image_size'   => array( '--scrt-item-image-size', 'px' ),
 			'item_image_radius' => array( '--scrt-item-image-radius', 'px' ),
 			'basket_size'       => array( '--scrt-basket-size', 'px' ),
+			'basket_icon_size'  => array( '--scrt-basket-icon-size', 'px' ),
 		);
 
 		foreach ( $layout_map as $setting_key => $data ) {

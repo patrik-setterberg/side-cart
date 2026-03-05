@@ -390,6 +390,10 @@ class Rest_API {
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
 			),
+			'basket_icon_size'              => array(
+				'type'              => 'integer',
+				'sanitize_callback' => 'absint',
+			),
 			'basket_radius'                 => array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
@@ -404,7 +408,12 @@ class Rest_API {
 			),
 			'cart_icon'                     => array(
 				'type'              => 'string',
-				'enum'              => array( 'bag', 'cart', 'basket' ),
+				'enum'              => array( 'bag', 'handbag', 'cart', 'basket' ),
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'remove_icon'                   => array(
+				'type'              => 'string',
+				'enum'              => array( 'trash', 'x' ),
 				'sanitize_callback' => 'sanitize_text_field',
 			),
 			'drawer_animation'              => array(
@@ -559,10 +568,12 @@ class Rest_API {
 			'basket_bg'                     => '#111111',
 			'basket_color'                  => '#ffffff',
 			'basket_size'                   => 56,
+			'basket_icon_size'              => 24,
 			'basket_radius'                 => '50%',
 			'badge_bg'                      => '#ef4444',
 			'badge_color'                   => '#ffffff',
 			'cart_icon'                     => 'bag',
+			'remove_icon'                   => 'trash',
 			'drawer_animation'              => 'slide',
 			'toast_bg'                      => '#111111',
 			'toast_color'                   => '#ffffff',

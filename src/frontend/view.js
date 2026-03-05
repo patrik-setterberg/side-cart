@@ -15,6 +15,7 @@ import {
 	createToastHelpers,
 	initFocusTrap,
 	watchOpen,
+	startCloseAnimation,
 	initCustomTriggers,
 } from './utils/ui-helpers';
 
@@ -92,6 +93,23 @@ const { state, actions } = store( 'side-cart', {
 				amount
 			);
 		},
+
+		get isErrorToast() {
+			const ctx = getContext();
+			const type = ctx?.toast?.type;
+			return type === 'error' || type === 'warning';
+		},
+
+		get isSuccessToast() {
+			const ctx = getContext();
+			return ctx?.toast?.type === 'success';
+		},
+
+		get isInfoToast() {
+			const ctx = getContext();
+			const type = ctx?.toast?.type;
+			return type !== 'error' && type !== 'warning' && type !== 'success';
+		},
 	},
 
 	actions: {
@@ -108,6 +126,7 @@ const { state, actions } = store( 'side-cart', {
 		},
 
 		close() {
+			startCloseAnimation();
 			state.isOpen = false;
 		},
 

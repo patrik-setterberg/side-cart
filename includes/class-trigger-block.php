@@ -47,8 +47,10 @@ class Trigger_Block {
 	public function render_block( $attributes, $content ): string {
 		$text       = $attributes['text'] ?? __( 'Cart', 'side-cart' );
 		$show_badge = $attributes['showBadge'] ?? true;
-		$icon       = $attributes['icon'] ?? 'bag';
 		$class_name = $attributes['className'] ?? '';
+
+		$saved_settings = get_option( Rest_API::OPTION_KEY, array() );
+		$icon           = $saved_settings['cart_icon'] ?? 'bag';
 
 		ob_start();
 		scrt_get_template(

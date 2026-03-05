@@ -49,6 +49,7 @@
 
   /* Floating basket */
   --scrt-basket-size: 56px;
+  --scrt-basket-icon-size: 24px;
   --scrt-basket-bg: #111111;
   --scrt-basket-color: #ffffff;
   --scrt-basket-radius: 50%;
@@ -83,7 +84,7 @@
   /* Structural properties (also in Layer 1) */
   --scrt-z-index: 999999;
   --scrt-drawer-width: 420px;
-  --scrt-transition-duration: 300ms;
+  --scrt-transition-duration: 200ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -118,9 +119,15 @@
   backdrop-filter: blur(var(--scrt-overlay-blur, 0px));
 }
 
-.scrt-overlay:not([hidden]) {
+.scrt-overlay.scrt-overlay--is-open {
   opacity: 1;
   visibility: visible;
+}
+
+/* Keep overlay in render tree so the fade transition fires */
+.scrt-overlay[hidden] {
+  display: block !important;
+  pointer-events: none;
 }
 
 /* ============================================================
@@ -145,19 +152,11 @@
   transition: transform var(--scrt-transition-duration) ease;
 }
 
-.scrt-drawer[hidden] {
-  visibility: hidden;
-}
-
-/* Drawer positions */
+/* Drawer positions — start off-screen; open state controlled by JS class */
 .scrt-drawer--right {
   right: 0;
   transform: translateX(100%);
   border-radius: var(--scrt-radius) 0 0 var(--scrt-radius);
-}
-
-.scrt-drawer--right:not([hidden]) {
-  transform: translateX(0);
 }
 
 .scrt-drawer--left {
@@ -166,19 +165,52 @@
   border-radius: 0 var(--scrt-radius) var(--scrt-radius) 0;
 }
 
-.scrt-drawer--left:not([hidden]) {
+.scrt-drawer--right.scrt-drawer--is-open,
+.scrt-drawer--left.scrt-drawer--is-open {
   transform: translateX(0);
 }
 
 /* Animation variants */
+
+/* slide: keep in render tree so the transform transition fires */
+.scrt-drawer--animation-slide[hidden] {
+  display: flex !important;
+  pointer-events: none;
+}
+
+/* Hide via visibility only after the slide-out animation completes */
+.scrt-drawer--animation-slide[hidden]:not(.scrt-drawer--is-open) {
+  visibility: hidden;
+  transition:
+    transform var(--scrt-transition-duration) ease,
+    visibility 0s var(--scrt-transition-duration);
+}
+
+/* fade: similar, but opacity drives the visual hide */
 .scrt-drawer--animation-fade {
   opacity: 0;
   transform: none !important;
-  transition: opacity var(--scrt-transition-duration) ease;
 }
 
-.scrt-drawer--animation-fade:not([hidden]) {
+.scrt-drawer--animation-fade[hidden] {
+  display: flex !important;
+  pointer-events: none;
+}
+
+.scrt-drawer--animation-fade[hidden]:not(.scrt-drawer--is-open) {
+  visibility: hidden;
+  transition:
+    opacity var(--scrt-transition-duration) ease,
+    visibility 0s var(--scrt-transition-duration);
+}
+
+.scrt-drawer--animation-fade.scrt-drawer--is-open {
   opacity: 1;
+}
+
+/* none: snap to hidden instantly */
+.scrt-drawer--animation-none[hidden] {
+  visibility: hidden;
 }
 
 .scrt-drawer--animation-none {
@@ -883,8 +915,8 @@
 }
 
 .scrt-basket__icon {
-  width: 24px;
-  height: 24px;
+  width: var(--scrt-basket-icon-size);
+  height: var(--scrt-basket-icon-size);
 }
 
 .scrt-basket__icon svg {

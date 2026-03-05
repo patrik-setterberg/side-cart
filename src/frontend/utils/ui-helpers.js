@@ -116,22 +116,55 @@ export function initFocusTrap( state ) {
  * @param {Object} state - The state object
  */
 export function watchOpen( state ) {
+	const drawer = document.querySelector( '.scrt-drawer' );
+	const overlay = document.querySelector( '.scrt-overlay' );
+
 	if ( state.isOpen ) {
 		document.body.style.overflow = 'hidden';
 		document.dispatchEvent( new CustomEvent( 'scrt:cart-opened' ) );
 
-		// Focus first focusable element
+		// Force a style flush so the browser registers the current "from" state
+		// (transform: translateX(100%)) before the open transition starts.
+		if ( drawer ) {
+			void drawer.offsetWidth;
+			drawer.classList.add( 'scrt-drawer--is-open' );
+		}
+		if ( overlay ) {
+			void overlay.offsetWidth;
+			overlay.classList.add( 'scrt-overlay--is-open' );
+		}
+
+		// Focus the close button after the drawer has begun opening
 		setTimeout( () => {
-			const closeButton = document.querySelector(
-				'.scrt-drawer__close'
-			);
+			const closeButton = document.querySelector( '.scrt-drawer__close' );
 			if ( closeButton ) {
 				closeButton.focus();
 			}
 		}, 100 );
 	} else {
+		// Close animation is triggered in close() BEFORE state.isOpen is set to
+		// false, so the hidden attribute hasn't been added yet and the transition
+		// runs cleanly. Here we just handle the side-effects.
 		document.body.style.overflow = '';
 		document.dispatchEvent( new CustomEvent( 'scrt:cart-closed' ) );
+	}
+}
+
+/**
+ * Start the close animation on the drawer and overlay.
+ * Must be called BEFORE state.isOpen is set to false so that
+ * the hidden attribute hasn't been added yet.
+ */
+export function startCloseAnimation() {
+	const drawer = document.querySelector( '.scrt-drawer' );
+	const overlay = document.querySelector( '.scrt-overlay' );
+
+	if ( drawer ) {
+		void drawer.offsetWidth; // register transform: translateX(0) as "from" state
+		drawer.classList.remove( 'scrt-drawer--is-open' );
+	}
+	if ( overlay ) {
+		overlay.classList.remove( 'scrt-overlay--is-open' );
 	}
 }
 

@@ -159,7 +159,7 @@ $drawer_classes = apply_filters(
 											data-wp-on--click="actions.decreaseQuantity"
 											data-wp-bind--disabled="context.item.quantity <= 1 || state.isLoading"
 										>
-											−
+											<?php echo wp_kses( scrt_get_quantity_icon_svg( 'minus' ), scrt_get_svg_allowed_tags() ); ?>
 										</button>
 										<input
 											class="scrt-qty-input"
@@ -180,7 +180,7 @@ $drawer_classes = apply_filters(
 											data-wp-on--click="actions.increaseQuantity"
 											data-wp-bind--disabled="context.item.quantity >= context.item.maxQty || state.isLoading"
 										>
-											+
+											<?php echo wp_kses( scrt_get_quantity_icon_svg( 'plus' ), scrt_get_svg_allowed_tags() ); ?>
 										</button>
 									</div>
 								<?php endif; ?>
@@ -193,10 +193,7 @@ $drawer_classes = apply_filters(
 										data-wp-on--click="actions.removeItem"
 										data-wp-bind--disabled="state.isLoading"
 									>
-										<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-											<polyline points="3 6 5 6 21 6"></polyline>
-											<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-										</svg>
+										<?php echo wp_kses( scrt_get_remove_icon_svg( $settings['remove_icon'] ), scrt_get_svg_allowed_tags() ); ?>
 									</button>
 								<?php endif; ?>
 							</div>
@@ -378,6 +375,11 @@ $drawer_classes = apply_filters(
 				data-wp-key="context.toast.id"
 				role="alert"
 			>
+				<span class="scrt-toast__icon" aria-hidden="true">
+					<span data-wp-bind--hidden="!state.isErrorToast"><?php echo wp_kses( scrt_get_toast_icon_svg( 'circle-alert' ), scrt_get_svg_allowed_tags() ); ?></span>
+					<span data-wp-bind--hidden="!state.isInfoToast"><?php echo wp_kses( scrt_get_toast_icon_svg( 'info' ), scrt_get_svg_allowed_tags() ); ?></span>
+					<span data-wp-bind--hidden="!state.isSuccessToast"><?php echo wp_kses( scrt_get_toast_icon_svg( 'circle-check' ), scrt_get_svg_allowed_tags() ); ?></span>
+				</span>
 				<span data-wp-text="context.toast.message"></span>
 				<button
 					class="scrt-toast__undo"

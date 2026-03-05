@@ -24,7 +24,7 @@
 		"icon": {
 			"type": "string",
 			"default": "bag",
-			"enum": ["bag", "cart", "basket"]
+			"enum": ["bag", "handbag", "cart", "basket"]
 		}
 	},
 	"editorScript": "file:./index.js"

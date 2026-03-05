@@ -647,6 +647,42 @@ function AppearanceTab({ settings, updateSetting }) {
         <>
           <Card>
             <CardBody>
+              <h2>{__("Icons & Animation", "side-cart")}</h2>
+              <SelectControl
+                label={__("Cart icon", "side-cart")}
+                value={settings.cart_icon}
+                options={[
+                  { label: __("Shopping Bag", "side-cart"), value: "bag" },
+                  { label: __("Handbag", "side-cart"), value: "handbag" },
+                  { label: __("Shopping Cart", "side-cart"), value: "cart" },
+                  { label: __("Shopping Basket", "side-cart"), value: "basket" },
+                ]}
+                onChange={(value) => updateSetting("cart_icon", value)}
+              />
+              <SelectControl
+                label={__("Remove item icon", "side-cart")}
+                value={settings.remove_icon}
+                options={[
+                  { label: __("Trash", "side-cart"), value: "trash" },
+                  { label: __("X", "side-cart"), value: "x" },
+                ]}
+                onChange={(value) => updateSetting("remove_icon", value)}
+              />
+              <SelectControl
+                label={__("Drawer animation", "side-cart")}
+                value={settings.drawer_animation}
+                options={[
+                  { label: __("Slide", "side-cart"), value: "slide" },
+                  { label: __("Fade", "side-cart"), value: "fade" },
+                  { label: __("None", "side-cart"), value: "none" },
+                ]}
+                onChange={(value) => updateSetting("drawer_animation", value)}
+              />
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardBody>
               <h2>{__("Colors", "side-cart")}</h2>
               <ColorControl
                 label={__("Primary color", "side-cart")}
@@ -790,11 +826,18 @@ function AppearanceTab({ settings, updateSetting }) {
                 onChange={(value) => updateSetting("basket_color", value)}
               />
               <RangeControl
-                label={__("Size (px)", "side-cart")}
+                label={__("Button size (px)", "side-cart")}
                 value={settings.basket_size}
                 onChange={(value) => updateSetting("basket_size", value)}
                 min={40}
                 max={80}
+              />
+              <RangeControl
+                label={__("Icon size (px)", "side-cart")}
+                value={settings.basket_icon_size}
+                onChange={(value) => updateSetting("basket_icon_size", value)}
+                min={16}
+                max={48}
               />
               <TextControl
                 label={__("Border radius", "side-cart")}
@@ -820,31 +863,6 @@ function AppearanceTab({ settings, updateSetting }) {
             </CardBody>
           </Card>
 
-          <Card>
-            <CardBody>
-              <h2>{__("Icons & Animation", "side-cart")}</h2>
-              <SelectControl
-                label={__("Cart icon", "side-cart")}
-                value={settings.cart_icon}
-                options={[
-                  { label: __("Shopping Bag", "side-cart"), value: "bag" },
-                  { label: __("Shopping Cart", "side-cart"), value: "cart" },
-                  { label: __("Basket", "side-cart"), value: "basket" },
-                ]}
-                onChange={(value) => updateSetting("cart_icon", value)}
-              />
-              <SelectControl
-                label={__("Drawer animation", "side-cart")}
-                value={settings.drawer_animation}
-                options={[
-                  { label: __("Slide", "side-cart"), value: "slide" },
-                  { label: __("Fade", "side-cart"), value: "fade" },
-                  { label: __("None", "side-cart"), value: "none" },
-                ]}
-                onChange={(value) => updateSetting("drawer_animation", value)}
-              />
-            </CardBody>
-          </Card>
 
           <Card>
             <CardBody>
@@ -1039,6 +1057,24 @@ function LicenseTab({ settings, updateSetting }) {
 // Color Control Helper Component
 function ColorControl({ label, value, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [draft, setDraft] = useState(value);
+  const originalRef = useRef(value);
+
+  const handleOpen = () => {
+    originalRef.current = value;
+    setDraft(value);
+    setIsOpen(true);
+  };
+
+  const handleApply = () => {
+    onChange(draft);
+    setIsOpen(false);
+  };
+
+  const handleCancel = () => {
+    onChange(originalRef.current);
+    setIsOpen(false);
+  };
 
   return (
     <div className="scrt-color-control">
@@ -1047,7 +1083,7 @@ function ColorControl({ label, value, onChange }) {
         <button
           className="scrt-color-control__swatch"
           style={{ backgroundColor: value }}
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={handleOpen}
           aria-label={label}
         />
         <TextControl
@@ -1058,14 +1094,15 @@ function ColorControl({ label, value, onChange }) {
       </div>
       {isOpen && (
         <div className="scrt-color-control__picker">
-          <ColorPicker color={value} onChangeComplete={onChange} />
-          <Button
-            variant="secondary"
-            onClick={() => setIsOpen(false)}
-            style={{ marginTop: "10px", width: "100%" }}
-          >
-            {__("Close", "side-cart")}
-          </Button>
+          <ColorPicker color={draft} onChange={setDraft} />
+          <div className="scrt-color-control__picker-actions">
+            <Button variant="primary" onClick={handleApply}>
+              {__("Apply", "side-cart")}
+            </Button>
+            <Button variant="secondary" onClick={handleCancel}>
+              {__("Cancel", "side-cart")}
+            </Button>
+          </div>
         </div>
       )}
     </div>
