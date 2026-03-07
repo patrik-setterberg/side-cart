@@ -71,7 +71,6 @@ const REMOVE_ICONS = {
   x: <X size={18} />,
 };
 
-const EMPTY_CART_ICON = <ShoppingCart size={64} strokeWidth={1.5} />;
 
 /**
  * Map plugin settings to CSS custom properties.
@@ -117,6 +116,11 @@ export function buildCssVars(settings) {
   if (settings.font_family) vars["--scrt-font-family"] = settings.font_family;
   if (settings.item_image_size) vars["--scrt-item-image-size"] = `${settings.item_image_size}px`;
   if (settings.item_image_radius !== undefined) vars["--scrt-item-image-radius"] = `${settings.item_image_radius}px`;
+  if (settings.trigger_bg) vars["--scrt-trigger-bg"] = settings.trigger_bg;
+  if (settings.trigger_color) vars["--scrt-trigger-color"] = settings.trigger_color;
+  if (settings.trigger_font_size) vars["--scrt-trigger-font-size"] = `${settings.trigger_font_size}px`;
+  if (settings.trigger_icon_size) vars["--scrt-trigger-icon-size"] = `${settings.trigger_icon_size}px`;
+  if (settings.trigger_radius !== undefined) vars["--scrt-trigger-radius"] = `${settings.trigger_radius}px`;
   if (settings.basket_size) vars["--scrt-basket-size"] = `${settings.basket_size}px`;
   if (settings.basket_icon_size) vars["--scrt-basket-icon-size"] = `${settings.basket_icon_size}px`;
   if (settings.basket_radius) vars["--scrt-basket-radius"] = settings.basket_radius;

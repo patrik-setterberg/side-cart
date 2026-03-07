@@ -131,6 +131,8 @@ class Assets {
 
 		// Color properties.
 		$color_map = array(
+			'trigger_bg'          => '--scrt-trigger-bg',
+			'trigger_color'       => '--scrt-trigger-color',
 			'primary_color'       => '--scrt-primary',
 			'primary_hover_color' => '--scrt-primary-hover',
 			'primary_text_color'  => '--scrt-primary-text',
@@ -157,7 +159,10 @@ class Assets {
 
 		// Layout properties.
 		$layout_map = array(
-			'drawer_width'      => array( '--scrt-drawer-width', 'px' ),
+			'trigger_font_size'  => array( '--scrt-trigger-font-size', 'px' ),
+			'trigger_icon_size'  => array( '--scrt-trigger-icon-size', 'px' ),
+			'trigger_radius'     => array( '--scrt-trigger-radius', 'px' ),
+			'drawer_width'       => array( '--scrt-drawer-width', 'px' ),
 			'border_radius'     => array( '--scrt-radius', 'px' ),
 			'button_radius'     => array( '--scrt-button-radius', 'px' ),
 			'overlay_blur'      => array( '--scrt-overlay-blur', 'px' ),

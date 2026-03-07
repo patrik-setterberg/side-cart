@@ -32,26 +32,25 @@ class Trigger_Shortcode {
 	public function render_shortcode( $atts ): string {
 		$atts = shortcode_atts(
 			array(
-				'text'       => __( 'Cart', 'side-cart' ),
-				'show_badge' => 'true',
-				'icon'       => 'bag',
-				'class'      => '',
-				'id'         => '',
+				'class' => '',
+				'id'    => '',
 			),
 			$atts,
 			'side_cart_trigger'
 		);
 
-		// Convert show_badge to boolean.
-		$show_badge = filter_var( $atts['show_badge'], FILTER_VALIDATE_BOOLEAN );
+		$saved_settings = get_option( Rest_API::OPTION_KEY, array() );
+		$text           = $saved_settings['trigger_text'] ?? __( 'Cart', 'side-cart' );
+		$show_badge     = $saved_settings['show_trigger_badge'] ?? true;
+		$icon           = $saved_settings['cart_icon'] ?? 'bag';
 
 		ob_start();
 		scrt_get_template(
 			'cart-trigger.php',
 			array(
-				'text'       => sanitize_text_field( $atts['text'] ),
+				'text'       => $text,
 				'show_badge' => $show_badge,
-				'icon'       => sanitize_text_field( $atts['icon'] ),
+				'icon'       => $icon,
 				'class'      => sanitize_text_field( $atts['class'] ),
 				'id'         => sanitize_text_field( $atts['id'] ),
 			)

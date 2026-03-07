@@ -31,7 +31,15 @@ export default function App() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [saveMessage, setSaveMessage] = useState(null);
-  const [activeTab, setActiveTab] = useState("general");
+  const validTabs = ["general", "appearance", "integrations", "advanced", "license"];
+  const hashTab = window.location.hash.slice(1);
+  const initialTab = validTabs.includes(hashTab) ? hashTab : "general";
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  const handleTabSelect = (tabName) => {
+    setActiveTab(tabName);
+    window.location.hash = tabName;
+  };
   const savedSettingsRef = useRef(null);
 
   // Load settings on mount
@@ -194,6 +202,7 @@ export default function App() {
         <div className="scrt-admin__settings">
           <TabPanel
             className="scrt-tab-panel"
+            initialTabName={initialTab}
             tabs={[
               {
                 name: "general",
@@ -216,7 +225,7 @@ export default function App() {
                 title: __("License", "side-cart"),
               },
             ]}
-            onSelect={setActiveTab}
+            onSelect={handleTabSelect}
           >
             {(tab) => (
               <div className="scrt-tab-content">
@@ -327,6 +336,22 @@ function GeneralTab({ settings, updateSetting }) {
             onChange={(value) =>
               updateSetting("custom_trigger_selector", value)
             }
+          />
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardBody>
+          <h2>{__("Cart Trigger", "side-cart")}</h2>
+          <TextControl
+            label={__("Button text", "side-cart")}
+            value={settings.trigger_text}
+            onChange={(value) => updateSetting("trigger_text", value)}
+          />
+          <ToggleControl
+            label={__("Show badge", "side-cart")}
+            checked={settings.show_trigger_badge}
+            onChange={(value) => updateSetting("show_trigger_badge", value)}
           />
         </CardBody>
       </Card>
@@ -726,9 +751,8 @@ function AppearanceTab({ settings, updateSetting }) {
                 value={settings.border_color}
                 onChange={(value) => updateSetting("border_color", value)}
               />
-              <TextControl
+              <ColorControl
                 label={__("Overlay color", "side-cart")}
-                help={__("e.g., rgba(0, 0, 0, 0.4)", "side-cart")}
                 value={settings.overlay_color}
                 onChange={(value) => updateSetting("overlay_color", value)}
               />
@@ -843,6 +867,43 @@ function AppearanceTab({ settings, updateSetting }) {
                 label={__("Border radius", "side-cart")}
                 value={settings.basket_radius}
                 onChange={(value) => updateSetting("basket_radius", value)}
+              />
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardBody>
+              <h2>{__("Cart Trigger", "side-cart")}</h2>
+              <ColorControl
+                label={__("Background color", "side-cart")}
+                value={settings.trigger_bg}
+                onChange={(value) => updateSetting("trigger_bg", value)}
+              />
+              <ColorControl
+                label={__("Text & icon color", "side-cart")}
+                value={settings.trigger_color}
+                onChange={(value) => updateSetting("trigger_color", value)}
+              />
+              <RangeControl
+                label={__("Font size (px)", "side-cart")}
+                value={settings.trigger_font_size}
+                onChange={(value) => updateSetting("trigger_font_size", value)}
+                min={12}
+                max={24}
+              />
+              <RangeControl
+                label={__("Icon size (px)", "side-cart")}
+                value={settings.trigger_icon_size}
+                onChange={(value) => updateSetting("trigger_icon_size", value)}
+                min={12}
+                max={32}
+              />
+              <RangeControl
+                label={__("Border radius (px)", "side-cart")}
+                value={settings.trigger_radius}
+                onChange={(value) => updateSetting("trigger_radius", value)}
+                min={0}
+                max={24}
               />
             </CardBody>
           </Card>
@@ -1094,7 +1155,7 @@ function ColorControl({ label, value, onChange }) {
       </div>
       {isOpen && (
         <div className="scrt-color-control__picker">
-          <ColorPicker color={draft} onChange={setDraft} />
+          <ColorPicker color={draft} onChange={setDraft} enableAlpha />
           <div className="scrt-color-control__picker-actions">
             <Button variant="primary" onClick={handleApply}>
               {__("Apply", "side-cart")}

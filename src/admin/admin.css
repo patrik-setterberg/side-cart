@@ -161,6 +161,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  max-width: 320px;
 }
 
 .scrt-color-control__swatch {
@@ -191,12 +192,50 @@
   background: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 4px;
+  width: 320px;
+  box-sizing: border-box;
+}
+
+/* Stretch the WordPress ColorfulWrapper (Emotion div) to fill the container */
+.scrt-color-control__picker > div {
+  width: 100%;
+}
+
+/* Stretch all react-colorful internals to fill */
+.scrt-color-control__picker .react-colorful,
+.scrt-color-control__picker .react-colorful__saturation,
+.scrt-color-control__picker .react-colorful__hue,
+.scrt-color-control__picker .react-colorful__alpha {
+  width: 100% !important;
+}
+
+/* Remove the horizontal padding WordPress adds to the format selector
+   and input rows, so they align flush with the saturation box */
+.scrt-color-control__picker .react-colorful + div > div {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Remove the negative margin-left and stray margin-bottom on the
+   format select (Hex/RGB/HSL) dropdown inside the color picker */
+.scrt-color-control__picker .components-select-control {
+  margin-left: 0 !important;
+  margin-bottom: 0 !important;
+  border: 1px solid var(--wp-components-color-gray-600, #949494);
+  border-radius: 2px;
+}
+
+.scrt-color-control__picker .components-number-control {
+  margin-bottom: 0 !important;
 }
 
 .scrt-color-control__picker-actions {
   display: flex;
   gap: 8px;
-  margin-top: 12px;
+}
+
+.scrt-color-control__picker-actions button {
+  padding: 6px 20px;
 }
 
 .components-notice {

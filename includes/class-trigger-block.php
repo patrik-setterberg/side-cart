@@ -45,11 +45,11 @@ class Trigger_Block {
 	 * @return string
 	 */
 	public function render_block( $attributes, $content ): string {
-		$text       = $attributes['text'] ?? __( 'Cart', 'side-cart' );
-		$show_badge = $attributes['showBadge'] ?? true;
 		$class_name = $attributes['className'] ?? '';
 
 		$saved_settings = get_option( Rest_API::OPTION_KEY, array() );
+		$text           = $saved_settings['trigger_text'] ?? __( 'Cart', 'side-cart' );
+		$show_badge     = $saved_settings['show_trigger_badge'] ?? true;
 		$icon           = $saved_settings['cart_icon'] ?? 'bag';
 
 		ob_start();

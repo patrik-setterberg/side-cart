@@ -13,18 +13,9 @@
 		"align": false
 	},
 	"attributes": {
-		"text": {
+		"className": {
 			"type": "string",
-			"default": "Cart"
-		},
-		"showBadge": {
-			"type": "boolean",
-			"default": true
-		},
-		"icon": {
-			"type": "string",
-			"default": "bag",
-			"enum": ["bag", "handbag", "cart", "basket"]
+			"default": ""
 		}
 	},
 	"editorScript": "file:./index.js"

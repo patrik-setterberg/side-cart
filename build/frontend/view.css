@@ -47,6 +47,13 @@
   --scrt-item-price-color: #666666;
   --scrt-quantity-input-width: 48px;
 
+  /* Trigger button */
+  --scrt-trigger-bg: #111111;
+  --scrt-trigger-color: #ffffff;
+  --scrt-trigger-font-size: 14px;
+  --scrt-trigger-icon-size: 20px;
+  --scrt-trigger-radius: 4px;
+
   /* Floating basket */
   --scrt-basket-size: 56px;
   --scrt-basket-icon-size: 24px;
@@ -58,7 +65,7 @@
   /* Badge */
   --scrt-badge-bg: #ef4444;
   --scrt-badge-color: #ffffff;
-  --scrt-badge-size: 20px;
+  --scrt-badge-size: 18px;
   --scrt-badge-font-size: 11px;
 
   /* General */
@@ -946,16 +953,17 @@
    ============================================================ */
 
 .scrt-trigger {
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: var(--scrt-primary);
-  color: var(--scrt-primary-text);
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--scrt-trigger-bg);
+  color: var(--scrt-trigger-color);
   border: none;
-  border-radius: var(--scrt-button-radius);
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: var(--scrt-trigger-radius);
+  font-size: var(--scrt-trigger-font-size);
+  font-weight: 400;
   cursor: pointer;
   position: relative;
   transition: background-color 0.2s ease;
@@ -971,8 +979,8 @@
 }
 
 .scrt-trigger__icon {
-  width: 20px;
-  height: 20px;
+  width: var(--scrt-trigger-icon-size);
+  height: var(--scrt-trigger-icon-size);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -985,16 +993,21 @@
 
 .scrt-trigger__badge {
   min-width: var(--scrt-badge-size);
+  min-width: unset;
+  position: absolute;
+  top: 0;
+  right: 0;
+
   height: var(--scrt-badge-size);
   background: var(--scrt-badge-bg);
   color: var(--scrt-badge-color);
-  border-radius: 10px;
+  border-radius: 5px;
   font-size: var(--scrt-badge-font-size);
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 6px;
+  padding: 0 5px;
   line-height: 1;
 }
 
