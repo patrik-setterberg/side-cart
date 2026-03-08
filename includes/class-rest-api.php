@@ -406,33 +406,6 @@ class Rest_API {
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_hex_color',
 			),
-			'trigger_bg'                    => array(
-				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
-			),
-			'trigger_color'                 => array(
-				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
-			),
-			'trigger_font_size'             => array(
-				'type'              => 'integer',
-				'sanitize_callback' => 'absint',
-			),
-			'trigger_icon_size'             => array(
-				'type'              => 'integer',
-				'sanitize_callback' => 'absint',
-			),
-			'trigger_radius'                => array(
-				'type'              => 'integer',
-				'sanitize_callback' => 'absint',
-			),
-			'trigger_text'                  => array(
-				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
-			),
-			'show_trigger_badge'            => array(
-				'type' => 'boolean',
-			),
 			'cart_icon'                     => array(
 				'type'              => 'string',
 				'enum'              => array( 'bag', 'handbag', 'cart', 'basket' ),
@@ -592,11 +565,6 @@ class Rest_API {
 			'font_size'                     => 14,
 			'item_image_size'               => 64,
 			'item_image_radius'             => 4,
-			'trigger_bg'                    => '#111111',
-			'trigger_color'                 => '#ffffff',
-			'trigger_font_size'             => 14,
-			'trigger_icon_size'             => 20,
-			'trigger_radius'                => 4,
 			'basket_bg'                     => '#111111',
 			'basket_color'                  => '#ffffff',
 			'basket_size'                   => 56,
@@ -604,8 +572,6 @@ class Rest_API {
 			'basket_radius'                 => '50%',
 			'badge_bg'                      => '#ef4444',
 			'badge_color'                   => '#ffffff',
-			'trigger_text'                  => __( 'Cart', 'side-cart' ),
-			'show_trigger_badge'            => true,
 			'cart_icon'                     => 'bag',
 			'remove_icon'                   => 'trash',
 			'drawer_animation'              => 'slide',

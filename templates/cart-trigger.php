@@ -9,9 +9,10 @@
  *
  * @var string $text         Button text.
  * @var bool   $show_badge   Whether to show the badge.
- * @var string $icon         Icon type (bag, cart, basket).
+ * @var string $icon         Icon type (bag, handbag, cart, basket).
  * @var string $class        Additional CSS classes.
  * @var string $id           Element ID.
+ * @var string $style        Inline CSS (scoped custom properties for block instances).
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -21,6 +22,7 @@ $show_badge = $show_badge ?? true;
 $icon       = $icon ?? 'bag';
 $class      = $class ?? '';
 $id         = $id ?? '';
+$style      = $style ?? '';
 
 $button_classes = array( 'scrt-trigger' );
 if ( ! empty( $class ) ) {
@@ -35,6 +37,9 @@ $icon_svg = scrt_get_cart_icon_svg( $icon );
 		id="<?php echo esc_attr( $id ); ?>"
 	<?php endif; ?>
 	class="<?php echo esc_attr( implode( ' ', $button_classes ) ); ?>"
+	<?php if ( ! empty( $style ) ) : ?>
+		style="<?php echo esc_attr( $style ); ?>"
+	<?php endif; ?>
 	type="button"
 	aria-label="<?php esc_attr_e( 'Open cart', 'side-cart' ); ?>"
 	aria-expanded="false"

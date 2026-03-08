@@ -342,22 +342,6 @@ function GeneralTab({ settings, updateSetting }) {
 
       <Card>
         <CardBody>
-          <h2>{__("Cart Trigger", "side-cart")}</h2>
-          <TextControl
-            label={__("Button text", "side-cart")}
-            value={settings.trigger_text}
-            onChange={(value) => updateSetting("trigger_text", value)}
-          />
-          <ToggleControl
-            label={__("Show badge", "side-cart")}
-            checked={settings.show_trigger_badge}
-            onChange={(value) => updateSetting("show_trigger_badge", value)}
-          />
-        </CardBody>
-      </Card>
-
-      <Card>
-        <CardBody>
           <h2>{__("Drawer Header", "side-cart")}</h2>
           <ToggleControl
             label={__("Show drawer heading", "side-cart")}
@@ -674,7 +658,7 @@ function AppearanceTab({ settings, updateSetting }) {
             <CardBody>
               <h2>{__("Icons & Animation", "side-cart")}</h2>
               <SelectControl
-                label={__("Cart icon", "side-cart")}
+                label={__("Floating basket icon", "side-cart")}
                 value={settings.cart_icon}
                 options={[
                   { label: __("Shopping Bag", "side-cart"), value: "bag" },
@@ -868,56 +852,13 @@ function AppearanceTab({ settings, updateSetting }) {
                 value={settings.basket_radius}
                 onChange={(value) => updateSetting("basket_radius", value)}
               />
-            </CardBody>
-          </Card>
-
-          <Card>
-            <CardBody>
-              <h2>{__("Cart Trigger", "side-cart")}</h2>
               <ColorControl
-                label={__("Background color", "side-cart")}
-                value={settings.trigger_bg}
-                onChange={(value) => updateSetting("trigger_bg", value)}
-              />
-              <ColorControl
-                label={__("Text & icon color", "side-cart")}
-                value={settings.trigger_color}
-                onChange={(value) => updateSetting("trigger_color", value)}
-              />
-              <RangeControl
-                label={__("Font size (px)", "side-cart")}
-                value={settings.trigger_font_size}
-                onChange={(value) => updateSetting("trigger_font_size", value)}
-                min={12}
-                max={24}
-              />
-              <RangeControl
-                label={__("Icon size (px)", "side-cart")}
-                value={settings.trigger_icon_size}
-                onChange={(value) => updateSetting("trigger_icon_size", value)}
-                min={12}
-                max={32}
-              />
-              <RangeControl
-                label={__("Border radius (px)", "side-cart")}
-                value={settings.trigger_radius}
-                onChange={(value) => updateSetting("trigger_radius", value)}
-                min={0}
-                max={24}
-              />
-            </CardBody>
-          </Card>
-
-          <Card>
-            <CardBody>
-              <h2>{__("Badge", "side-cart")}</h2>
-              <ColorControl
-                label={__("Background color", "side-cart")}
+                label={__("Badge background", "side-cart")}
                 value={settings.badge_bg}
                 onChange={(value) => updateSetting("badge_bg", value)}
               />
               <ColorControl
-                label={__("Text color", "side-cart")}
+                label={__("Badge text color", "side-cart")}
                 value={settings.badge_color}
                 onChange={(value) => updateSetting("badge_color", value)}
               />

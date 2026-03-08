@@ -16,7 +16,49 @@
 		"className": {
 			"type": "string",
 			"default": ""
+		},
+		"triggerText": {
+			"type": "string",
+			"default": "Cart"
+		},
+		"icon": {
+			"type": "string",
+			"default": "bag",
+			"enum": ["bag", "handbag", "cart", "basket"]
+		},
+		"showBadge": {
+			"type": "boolean",
+			"default": true
+		},
+		"triggerBg": {
+			"type": "string",
+			"default": "#111111"
+		},
+		"triggerColor": {
+			"type": "string",
+			"default": "#ffffff"
+		},
+		"triggerFontSize": {
+			"type": "integer",
+			"default": 14
+		},
+		"triggerIconSize": {
+			"type": "integer",
+			"default": 20
+		},
+		"triggerRadius": {
+			"type": "integer",
+			"default": 4
+		},
+		"triggerBadgeBg": {
+			"type": "string",
+			"default": "#ef4444"
+		},
+		"triggerBadgeColor": {
+			"type": "string",
+			"default": "#ffffff"
 		}
 	},
-	"editorScript": "file:./index.js"
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css"
 }

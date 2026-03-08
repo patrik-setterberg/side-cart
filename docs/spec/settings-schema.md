@@ -24,8 +24,9 @@ $defaults = [
   // -------------------------------------------------------------------------
   // Drawer Header
   // -------------------------------------------------------------------------
-  'show_drawer_heading' => true,
-  'drawer_heading_text' => 'Your Cart',
+  'show_drawer_heading'       => true,
+  'drawer_heading_text'       => 'Your Cart',
+  'show_item_count_in_header' => true,   // appends "(3)" to the heading text
 
   // -------------------------------------------------------------------------
   // Drawer Body
@@ -39,14 +40,20 @@ $defaults = [
   // -------------------------------------------------------------------------
   // Cart Item
   // -------------------------------------------------------------------------
-  'show_item_image'     => true,
-  'show_item_name'      => true,
-  'show_item_sku'       => false,
-  'show_item_price'     => true,
-  'item_price_mode'     => 'individual',  // individual | line_total (price × quantity)
-  'show_item_variation' => false,          // stacked list of variation attributes (variable products only)
-  'show_item_quantity'  => true,
-  'show_item_remove'    => true,
+  'show_item_image'               => true,
+  'show_item_name'                => true,
+  'show_item_sku'                 => false,
+  'show_item_stock_status'        => false,  // in-stock / out-of-stock / on-backorder label
+  'stock_status_label_override'   => false,  // replace default WC labels with custom text
+  'stock_status_label_instock'    => '',     // custom label when override is ON
+  'stock_status_label_outofstock' => '',
+  'stock_status_label_onbackorder' => '',
+  'show_item_price'               => true,
+  'item_price_mode'               => 'individual',  // individual | line_total (price × quantity)
+  'show_sale_price'               => true,   // show struck-through regular price alongside sale price
+  'show_item_variation'           => false,  // stacked list of variation attributes (variable products only)
+  'show_item_quantity'            => true,
+  'show_item_remove'              => true,
 
   // -------------------------------------------------------------------------
   // Cart Totals
@@ -101,17 +108,19 @@ $defaults = [
   'item_image_radius' => 4,   // px
 
   // Floating basket
-  'basket_bg'     => '#111111',
-  'basket_color'  => '#ffffff',
-  'basket_size'   => 56,     // px
-  'basket_radius' => '50%',
+  'basket_bg'        => '#111111',
+  'basket_color'     => '#ffffff',
+  'basket_size'      => 56,   // px
+  'basket_icon_size' => 24,   // px
+  'basket_radius'    => '50%',
 
   // Badge
   'badge_bg'    => '#ef4444',
   'badge_color' => '#ffffff',
 
   // Icons & animation
-  'cart_icon'        => 'bag',    // bag | cart | basket
+  'cart_icon'        => 'bag',    // bag | handbag | cart | basket
+  'remove_icon'      => 'trash',  // trash | x
   'drawer_animation' => 'slide',  // slide | fade | none
                                   // prefers-reduced-motion overrides to none via CSS media query
 

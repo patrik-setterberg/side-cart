@@ -16,7 +16,7 @@ These live in `side-cart-structure.css` and are always loaded, even when the plu
 :root {
   --scrt-z-index:             999999;
   --scrt-drawer-width:        420px;
-  --scrt-transition-duration: 300ms;
+  --scrt-transition-duration: 200ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -85,6 +85,7 @@ These live in `side-cart-structure.css` and are always loaded, even when the plu
 | Property | Default | Notes |
 |---|---|---|
 | `--scrt-basket-size` | `56px` | Basket button width and height |
+| `--scrt-basket-icon-size` | `24px` | Basket icon width and height |
 | `--scrt-basket-bg` | `#111111` | Basket button background |
 | `--scrt-basket-color` | `#ffffff` | Basket icon color |
 | `--scrt-basket-radius` | `50%` | Basket button border radius |
@@ -96,7 +97,7 @@ These live in `side-cart-structure.css` and are always loaded, even when the plu
 |---|---|---|
 | `--scrt-badge-bg` | `#ef4444` | Badge background (red) |
 | `--scrt-badge-color` | `#ffffff` | Badge text color |
-| `--scrt-badge-size` | `20px` | Badge width and height |
+| `--scrt-badge-size` | `18px` | Badge width and height |
 | `--scrt-badge-font-size` | `11px` | Badge numeral font size |
 
 ### General

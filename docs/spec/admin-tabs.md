@@ -46,6 +46,7 @@ Controls the core drawer behaviour and all content visibility toggles.
 |---|---|---|---|
 | Show drawer heading | Toggle | `show_drawer_heading` | |
 | Heading text | Text | `drawer_heading_text` | Greyed out when heading toggle is OFF |
+| Show item count in heading | Toggle | `show_item_count_in_header` | Appends "(3)" after the heading text |
 
 ### Section: Drawer Body
 
@@ -64,9 +65,15 @@ Controls the core drawer behaviour and all content visibility toggles.
 | Show product image | Toggle | `show_item_image` | |
 | Show product name | Toggle | `show_item_name` | |
 | Show product SKU | Toggle | `show_item_sku` | |
+| Show stock status | Toggle | `show_item_stock_status` | Displays in-stock / out-of-stock / on-backorder label |
+| Override stock status labels | Toggle | `stock_status_label_override` | Only shown when stock status toggle is ON |
+| In stock label | Text | `stock_status_label_instock` | Only shown when override is ON |
+| Out of stock label | Text | `stock_status_label_outofstock` | Only shown when override is ON |
+| On backorder label | Text | `stock_status_label_onbackorder` | Only shown when override is ON |
 | Show variation attributes | Toggle | `show_item_variation` | Variable products only; renders a stacked `<ul>` of attribute: value pairs |
 | Show price | Toggle | `show_item_price` | |
 | Price display mode | Select | `item_price_mode` | "Individual price" / "Line total (price × quantity)". Only shown when price toggle is ON. |
+| Show sale price | Toggle | `show_sale_price` | Struck-through regular price alongside sale price. Only shown when price toggle is ON. |
 | Show quantity controls | Toggle | `show_item_quantity` | Decrease button + number input + increase button |
 | Show remove button | Toggle | `show_item_remove` | |
 
@@ -155,7 +162,8 @@ _"The default styles are active. Override them with CSS custom properties (e.g. 
 |---|---|---|
 | Background color | ColorPicker | `basket_bg` |
 | Icon color | ColorPicker | `basket_color` |
-| Size | RangeControl (px) | `basket_size` |
+| Button size | RangeControl (px) | `basket_size` |
+| Icon size | RangeControl (px) | `basket_icon_size` |
 | Border radius | Text | `basket_radius` |
 
 #### Badge
@@ -169,7 +177,8 @@ _"The default styles are active. Override them with CSS custom properties (e.g. 
 
 | Control | Type | Setting key | Notes |
 |---|---|---|---|
-| Cart icon | Visual picker | `cart_icon` | bag / cart / basket — show actual SVG previews |
+| Cart icon | Visual picker | `cart_icon` | bag / handbag / cart / basket — show actual SVG previews |
+| Remove icon | Visual picker | `remove_icon` | trash / x — show actual SVG previews |
 | Drawer animation | Select | `drawer_animation` | slide / fade / none. `prefers-reduced-motion` overrides to none via CSS regardless of this setting. |
 
 #### Toasts

@@ -45,12 +45,46 @@ class Trigger_Block {
 	 * @return string
 	 */
 	public function render_block( $attributes, $content ): string {
+		$text       = ! empty( $attributes['triggerText'] ) ? $attributes['triggerText'] : __( 'Cart', 'side-cart' );
+		$show_badge = $attributes['showBadge'] ?? true;
+		$icon       = $attributes['icon'] ?? 'bag';
 		$class_name = $attributes['className'] ?? '';
 
-		$saved_settings = get_option( Rest_API::OPTION_KEY, array() );
-		$text           = $saved_settings['trigger_text'] ?? __( 'Cart', 'side-cart' );
-		$show_badge     = $saved_settings['show_trigger_badge'] ?? true;
-		$icon           = $saved_settings['cart_icon'] ?? 'bag';
+		// Build scoped inline CSS custom properties for this block instance.
+		$defaults = array(
+			'triggerBg'          => '#111111',
+			'triggerColor'       => '#ffffff',
+			'triggerFontSize'    => 14,
+			'triggerIconSize'    => 20,
+			'triggerRadius'      => 4,
+			'triggerBadgeBg'     => '#ef4444',
+			'triggerBadgeColor'  => '#ffffff',
+		);
+
+		$var_map = array(
+			'triggerBg'         => array( '--scrt-trigger-bg', 'color' ),
+			'triggerColor'      => array( '--scrt-trigger-color', 'color' ),
+			'triggerFontSize'   => array( '--scrt-trigger-font-size', 'px' ),
+			'triggerIconSize'   => array( '--scrt-trigger-icon-size', 'px' ),
+			'triggerRadius'     => array( '--scrt-trigger-radius', 'px' ),
+			'triggerBadgeBg'    => array( '--scrt-trigger-badge-bg', 'color' ),
+			'triggerBadgeColor' => array( '--scrt-trigger-badge-color', 'color' ),
+		);
+
+		$vars = array();
+		foreach ( $var_map as $attr_key => $data ) {
+			list( $css_var, $type ) = $data;
+			$value                  = $attributes[ $attr_key ] ?? $defaults[ $attr_key ];
+			if ( $value !== $defaults[ $attr_key ] ) {
+				if ( 'color' === $type ) {
+					$vars[] = $css_var . ': ' . sanitize_hex_color( $value ) . ';';
+				} else {
+					$vars[] = $css_var . ': ' . absint( $value ) . 'px;';
+				}
+			}
+		}
+
+		$style = ! empty( $vars ) ? implode( ' ', $vars ) : '';
 
 		ob_start();
 		scrt_get_template(
@@ -61,6 +95,7 @@ class Trigger_Block {
 				'icon'       => $icon,
 				'class'      => $class_name,
 				'id'         => '',
+				'style'      => $style,
 			)
 		);
 		return ob_get_clean();

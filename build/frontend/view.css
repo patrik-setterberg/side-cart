@@ -1,3 +1,80 @@
+/* ============================================================
+   Cart Trigger — shared styles
+   Imported by view.css (frontend) and the cart-trigger block
+   editor script (block editor).
+   ============================================================ */
+
+:root {
+  --scrt-trigger-bg: #111111;
+  --scrt-trigger-color: #ffffff;
+  --scrt-trigger-font-size: 14px;
+  --scrt-trigger-icon-size: 20px;
+  --scrt-trigger-radius: 4px;
+
+  /* Trigger badge (independent from floating basket badge) */
+  --scrt-trigger-badge-bg: #ef4444;
+  --scrt-trigger-badge-color: #ffffff;
+  --scrt-trigger-badge-size: 18px;
+  --scrt-trigger-badge-font-size: 11px;
+}
+
+.scrt-trigger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--scrt-trigger-bg);
+  color: var(--scrt-trigger-color);
+  border: none;
+  border-radius: var(--scrt-trigger-radius);
+  font-size: var(--scrt-trigger-font-size);
+  font-weight: 400;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.scrt-trigger:hover {
+  background: var(--scrt-primary-hover);
+}
+
+.scrt-trigger:focus-visible {
+  outline: 2px solid var(--scrt-primary);
+  outline-offset: 2px;
+}
+
+.scrt-trigger__icon {
+  width: var(--scrt-trigger-icon-size);
+  height: var(--scrt-trigger-icon-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scrt-trigger__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.scrt-trigger__badge {
+  min-width: unset;
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: var(--scrt-trigger-badge-size);
+  background: var(--scrt-trigger-badge-bg);
+  color: var(--scrt-trigger-badge-color);
+  border-radius: 5px;
+  font-size: var(--scrt-trigger-badge-font-size);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  line-height: 1;
+}
+
 /**
  * Side Cart — Frontend Styles (Layer 2: Theme)
  *
@@ -46,13 +123,6 @@
   --scrt-item-price-font-size: 14px;
   --scrt-item-price-color: #666666;
   --scrt-quantity-input-width: 48px;
-
-  /* Trigger button */
-  --scrt-trigger-bg: #111111;
-  --scrt-trigger-color: #ffffff;
-  --scrt-trigger-font-size: 14px;
-  --scrt-trigger-icon-size: 20px;
-  --scrt-trigger-radius: 4px;
 
   /* Floating basket */
   --scrt-basket-size: 56px;
@@ -945,69 +1015,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
-}
-
-/* ============================================================
-   Cart Trigger
-   ============================================================ */
-
-.scrt-trigger {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background: var(--scrt-trigger-bg);
-  color: var(--scrt-trigger-color);
-  border: none;
-  border-radius: var(--scrt-trigger-radius);
-  font-size: var(--scrt-trigger-font-size);
-  font-weight: 400;
-  cursor: pointer;
-  position: relative;
-  transition: background-color 0.2s ease;
-}
-
-.scrt-trigger:hover {
-  background: var(--scrt-primary-hover);
-}
-
-.scrt-trigger:focus-visible {
-  outline: 2px solid var(--scrt-primary);
-  outline-offset: 2px;
-}
-
-.scrt-trigger__icon {
-  width: var(--scrt-trigger-icon-size);
-  height: var(--scrt-trigger-icon-size);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.scrt-trigger__icon svg {
-  width: 100%;
-  height: 100%;
-}
-
-.scrt-trigger__badge {
-  min-width: var(--scrt-badge-size);
-  min-width: unset;
-  position: absolute;
-  top: 0;
-  right: 0;
-
-  height: var(--scrt-badge-size);
-  background: var(--scrt-badge-bg);
-  color: var(--scrt-badge-color);
-  border-radius: 5px;
-  font-size: var(--scrt-badge-font-size);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 5px;
   line-height: 1;
 }
 
