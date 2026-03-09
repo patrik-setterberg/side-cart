@@ -1,0 +1,279 @@
+/**
+ * Side Cart — Structural CSS (Layer 1)
+ *
+ * Always enqueued, even when "Load plugin stylesheet" is OFF.
+ * Contains only the layout, positioning, z-index and open/close mechanics
+ * needed for the drawer to function. All visual design lives in view.css
+ * (Layer 2), which is conditionally enqueued when load_plugin_stylesheet is ON.
+ *
+ * @package SideCart
+ */
+
+/* ============================================================
+   CSS Custom Properties — structural only
+   ============================================================ */
+
+:root {
+  --scrt-z-index: 999999;
+  --scrt-drawer-width: 420px;
+  --scrt-transition-duration: 200ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --scrt-transition-duration: 0ms;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --scrt-drawer-width: 100vw;
+  }
+}
+
+/* ============================================================
+   Overlay
+   ============================================================ */
+
+.scrt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--scrt-z-index);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--scrt-transition-duration) ease,
+    visibility var(--scrt-transition-duration) ease;
+}
+
+.scrt-overlay.scrt-overlay--is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Keep overlay in render tree so the fade transition fires */
+.scrt-overlay[hidden] {
+  display: block !important;
+  pointer-events: none;
+}
+
+/* ============================================================
+   Drawer
+   ============================================================ */
+
+.scrt-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: var(--scrt-drawer-width);
+  max-width: 100vw;
+  z-index: calc(var(--scrt-z-index) + 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform var(--scrt-transition-duration) ease;
+}
+
+/* Drawer positions — start off-screen; open state controlled by JS class */
+.scrt-drawer--right {
+  right: 0;
+  transform: translateX(100%);
+}
+
+.scrt-drawer--left {
+  left: 0;
+  transform: translateX(-100%);
+}
+
+.scrt-drawer--right.scrt-drawer--is-open,
+.scrt-drawer--left.scrt-drawer--is-open {
+  transform: translateX(0);
+}
+
+/* slide: keep in render tree so the transform transition fires */
+.scrt-drawer--animation-slide[hidden] {
+  display: flex !important;
+  pointer-events: none;
+}
+
+.scrt-drawer--animation-slide[hidden]:not(.scrt-drawer--is-open) {
+  visibility: hidden;
+  transition:
+    transform var(--scrt-transition-duration) ease,
+    visibility 0s var(--scrt-transition-duration);
+}
+
+/* fade: opacity drives the visual hide */
+.scrt-drawer--animation-fade {
+  opacity: 0;
+  transform: none !important;
+}
+
+.scrt-drawer--animation-fade[hidden] {
+  display: flex !important;
+  pointer-events: none;
+}
+
+.scrt-drawer--animation-fade[hidden]:not(.scrt-drawer--is-open) {
+  visibility: hidden;
+  transition:
+    opacity var(--scrt-transition-duration) ease,
+    visibility 0s var(--scrt-transition-duration);
+}
+
+.scrt-drawer--animation-fade.scrt-drawer--is-open {
+  opacity: 1;
+}
+
+/* none: snap to hidden instantly */
+.scrt-drawer--animation-none[hidden] {
+  visibility: hidden;
+}
+
+.scrt-drawer--animation-none {
+  transition: none;
+}
+
+/* ============================================================
+   Drawer regions — flex layout
+   ============================================================ */
+
+.scrt-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.scrt-drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scrt-drawer__footer {
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Loading overlay
+   ============================================================ */
+
+.scrt-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  pointer-events: all;
+}
+
+@keyframes scrt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================
+   Toasts
+   ============================================================ */
+
+.scrt-toasts {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: calc(var(--scrt-z-index) + 2);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.scrt-toast {
+  animation: scrt-slide-in 0.3s ease;
+  pointer-events: all;
+}
+
+@keyframes scrt-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============================================================
+   Floating Basket
+   ============================================================ */
+
+.scrt-basket {
+  position: fixed;
+  z-index: var(--scrt-z-index);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scrt-basket--bottom-right {
+  bottom: 20px;
+  right: 20px;
+}
+
+.scrt-basket--bottom-left {
+  bottom: 20px;
+  left: 20px;
+}
+
+/* ============================================================
+   Interactivity API — hidden attribute support
+   ============================================================ */
+
+[hidden] {
+  display: none !important;
+}
+
+/* ============================================================
+   Accessibility
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .scrt-drawer,
+  .scrt-overlay,
+  .scrt-basket,
+  .scrt-button,
+  .scrt-qty-btn,
+  .scrt-item__remove,
+  .scrt-coupon__button,
+  .scrt-toast {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ============================================================
+   Responsive — structural overrides only
+   ============================================================ */
+
+@media (max-width: 480px) {
+  .scrt-toasts {
+    left: 20px;
+    right: 20px;
+  }
+
+  .scrt-basket--bottom-right,
+  .scrt-basket--bottom-left {
+    bottom: 16px;
+  }
+
+  .scrt-basket--bottom-right {
+    right: 16px;
+  }
+
+  .scrt-basket--bottom-left {
+    left: 16px;
+  }
+}

@@ -104,17 +104,27 @@ class Assets {
 	 * @return void
 	 */
 	private function enqueue_stylesheets(): void {
-		// Layer 1: Always enqueue structure CSS from built assets.
+		// Layer 1: Always enqueue structural CSS.
 		wp_enqueue_style(
 			'side-cart-structure',
-			SCRT_PLUGIN_URL . 'build/frontend/view.css',
+			SCRT_PLUGIN_URL . 'build/frontend/structure.css',
 			array(),
 			SCRT_VERSION
 		);
 
-		// Layer 2 & 3: Inline CSS overrides (conditional).
-		if ( $this->settings['load_plugin_stylesheet'] && $this->settings['customize_appearance'] ) {
-			$this->add_inline_overrides();
+		// Layer 2: Theme CSS — only when load_plugin_stylesheet is ON.
+		if ( $this->settings['load_plugin_stylesheet'] ) {
+			wp_enqueue_style(
+				'side-cart-theme',
+				SCRT_PLUGIN_URL . 'build/frontend/view.css',
+				array( 'side-cart-structure' ),
+				SCRT_VERSION
+			);
+
+			// Layer 3: Inline CSS overrides — only when customize_appearance is also ON.
+			if ( $this->settings['customize_appearance'] ) {
+				$this->add_inline_overrides();
+			}
 		}
 	}
 
@@ -198,7 +208,7 @@ class Assets {
 		// Output inline style if we have overrides.
 		if ( ! empty( $overrides ) ) {
 			$inline_css = ':root { ' . implode( ' ', $overrides ) . ' }';
-			wp_add_inline_style( 'side-cart-structure', $inline_css );
+			wp_add_inline_style( 'side-cart-theme', $inline_css );
 		}
 	}
 
@@ -215,7 +225,9 @@ class Assets {
 		$custom_css = wp_strip_all_tags( $this->settings['custom_css'] );
 
 		if ( ! empty( $custom_css ) ) {
-			wp_add_inline_style( 'side-cart-structure', $custom_css );
+			// Attach after theme if loaded, otherwise after structure.
+			$handle = $this->settings['load_plugin_stylesheet'] ? 'side-cart-theme' : 'side-cart-structure';
+			wp_add_inline_style( $handle, $custom_css );
 		}
 	}
 }

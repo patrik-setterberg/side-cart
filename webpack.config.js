@@ -5,7 +5,10 @@ const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 // Custom config for Interactivity API module (can't use defaultConfig externals).
 const interactivityConfig = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-    entry: { 'frontend/view': './src/frontend/view.js' },
+    entry: {
+        'frontend/view': './src/frontend/view.js',
+        'frontend/structure': './src/frontend/structure.js',
+    },
     output: {
         path: path.resolve( __dirname, 'build' ),
         filename: '[name].js',
