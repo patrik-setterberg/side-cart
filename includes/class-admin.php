@@ -112,9 +112,8 @@ class Admin {
 			'side-cart-admin',
 			'scrtAdmin',
 			array(
-				'apiUrl'    => esc_url_raw( rest_url( 'side-cart/v1' ) ),
-				'nonce'     => wp_create_nonce( 'wp_rest' ),
-				'pluginUrl' => SCRT_PLUGIN_URL,
+				'apiUrl' => esc_url_raw( rest_url( 'side-cart/v1' ) ),
+				'nonce'  => wp_create_nonce( 'wp_rest' ),
 			)
 		);
 	}

@@ -84,14 +84,18 @@ const { state, actions } = store( 'side-cart', {
 				return state.freeShippingSuccessMessage;
 			}
 			// Replace {amount} placeholder
-			const amount = new Intl.NumberFormat( 'en-US', {
+			const amount = new Intl.NumberFormat( state.locale, {
 				style: 'currency',
-				currency: 'USD',
+				currency: state.currencyCode,
 			} ).format( remaining );
 			return state.freeShippingProgressMessage.replace(
 				'{amount}',
 				amount
 			);
+		},
+
+		get triggerAriaLabel() {
+			return state.isOpen ? state.i18n.closeCart : state.i18n.openCart;
 		},
 
 		get isErrorToast() {
@@ -128,6 +132,14 @@ const { state, actions } = store( 'side-cart', {
 		close() {
 			startCloseAnimation();
 			state.isOpen = false;
+		},
+
+		continueShopping() {
+			if ( state.continueShoppingAction === 'close' ) {
+				actions.close();
+			} else {
+				window.location.href = state.continueShoppingUrl;
+			}
 		},
 
 		onKeydown( event ) {
@@ -594,6 +606,16 @@ const { state, actions } = store( 'side-cart', {
 
 		initCustomTriggers() {
 			initCustomTriggers( state, actions.open );
+		},
+
+		syncCustomTriggerBadges() {
+			const count = state.badgeCount;
+			document
+				.querySelectorAll( '[data-scrt-custom-badge]' )
+				.forEach( ( badge ) => {
+					badge.textContent = count;
+					badge.hidden = count === 0;
+				} );
 		},
 	},
 } );

@@ -170,29 +170,22 @@ class Cart_Renderer {
 
 		$cart = WC()->cart;
 
-		// Ensure cart totals are calculated.
-		$cart->calculate_totals();
+		// Only recalculate if totals haven't been calculated yet (avoids redundant
+		// tax/shipping recalculations on every page load).
+		// taxes_total_is_calculated() was added in WooCommerce 8.9; fall back to
+		// always recalculating on older versions.
+		if ( ! method_exists( $cart, 'taxes_total_is_calculated' ) || ! $cart->taxes_total_is_calculated() ) {
+			$cart->calculate_totals();
+		}
 
 		if ( $cart->is_empty() ) {
 			return $this->get_empty_state();
 		}
 
-		// Compute stock status labels - use WooCommerce defaults or custom overrides.
-		$wc_stock_labels     = wc_get_product_stock_status_options();
-		$override            = ! empty( $this->settings['stock_status_label_override'] );
-		$stock_status_labels = array(
-			'instock'     => ( $override && ! empty( $this->settings['stock_status_label_instock'] ) )
-				? $this->settings['stock_status_label_instock']
-				: $wc_stock_labels['instock'],
-			'outofstock'  => ( $override && ! empty( $this->settings['stock_status_label_outofstock'] ) )
-				? $this->settings['stock_status_label_outofstock']
-				: $wc_stock_labels['outofstock'],
-			'onbackorder' => ( $override && ! empty( $this->settings['stock_status_label_onbackorder'] ) )
-				? $this->settings['stock_status_label_onbackorder']
-				: $wc_stock_labels['onbackorder'],
-		);
-
-		$items = array();
+		$base                = $this->build_base_state();
+		$stock_status_labels = $base['stockStatusLabels'];
+		$price_args          = array( 'decimals' => wc_get_price_decimals() );
+		$items               = array();
 
 		foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) {
 			$product = $cart_item['data'];
@@ -225,7 +218,6 @@ class Cart_Renderer {
 			}
 
 			// Format prices as plain text instead of HTML for Interactivity API compatibility
-			$price_args      = array( 'decimals' => wc_get_price_decimals() );
 			$formatted_price = strip_tags( wc_price( $product->get_price(), $price_args ) );
 			$formatted_total = strip_tags( wc_price( $cart_item['line_total'], $price_args ) );
 
@@ -233,27 +225,24 @@ class Cart_Renderer {
 			$on_sale             = $product->is_on_sale();
 			$formatted_reg_price = $on_sale ? strip_tags( wc_price( $product->get_regular_price(), $price_args ) ) : '';
 
-            if ($product->is_type('variation')) {
-                $variation = $product;
-                $parentId = $variation->get_parent_id();
-                $parent = wc_get_product($parentId);
-
-                $productName = $parent->get_name();
-            } else {
-                $productName = $product->get_name();
-            }
+			if ( $product->is_type( 'variation' ) ) {
+				$parent       = wc_get_product( $product->get_parent_id() );
+				$product_name = $parent ? $parent->get_name() : $product->get_name();
+			} else {
+				$product_name = $product->get_name();
+			}
 
 			$item_data = array(
-				'key'          => $cart_item_key,
-				'productId'    => $cart_item['product_id'],
-				'name'         => html_entity_decode( $productName, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
-				'quantity'     => $cart_item['quantity'],
-				'price'        => html_entity_decode( $formatted_price, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
-				'regularPrice' => $on_sale ? html_entity_decode( $formatted_reg_price, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) : '',
-				'onSale'       => $on_sale,
-				'lineTotal'    => html_entity_decode( $formatted_total, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
-				'thumbnailUrl' => $thumbnail_url,
-				'permalink'    => $product->get_permalink(),
+				'key'              => $cart_item_key,
+				'productId'        => $cart_item['product_id'],
+				'name'             => html_entity_decode( $product_name, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+				'quantity'         => $cart_item['quantity'],
+				'price'            => html_entity_decode( $formatted_price, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+				'regularPrice'     => $on_sale ? html_entity_decode( $formatted_reg_price, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) : '',
+				'onSale'           => $on_sale,
+				'lineTotal'        => html_entity_decode( $formatted_total, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+				'thumbnailUrl'     => $thumbnail_url,
+				'permalink'        => $product->get_permalink(),
 				'sku'              => $product->get_sku(),
 				'maxQty'           => $max_qty,
 				'stockStatus'      => $product->get_stock_status(),
@@ -290,58 +279,24 @@ class Cart_Renderer {
 		$free_shipping_threshold = $this->get_free_shipping_threshold();
 
 		// Format totals as plain text for Interactivity API
-		$formatted_subtotal  = strip_tags( wc_price( $cart->get_subtotal(), $price_args ) );
-		$formatted_total     = strip_tags( wc_price( $cart->get_total( 'edit' ), $price_args ) );
-		$discount_amount     = $cart->get_discount_total();
-		$formatted_discount  = strip_tags( wc_price( $discount_amount, $price_args ) );
+		$formatted_subtotal = strip_tags( wc_price( $cart->get_subtotal(), $price_args ) );
+		$formatted_total    = strip_tags( wc_price( $cart->get_total( 'edit' ), $price_args ) );
+		$discount_amount    = $cart->get_discount_total();
+		$formatted_discount = strip_tags( wc_price( $discount_amount, $price_args ) );
 
-		$state = array(
-			'isOpen'                       => false,
-			'isLoading'                    => false,
-			'autoOpen'                     => (bool) $this->settings['auto_open'],
-			'showItemCountInHeader'        => (bool) $this->settings['show_item_count_in_header'],
-			'drawerHeadingText'            => html_entity_decode( esc_html( $this->settings['drawer_heading_text'] ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
-			'headerItemSingular'           => __( 'item', 'side-cart' ),
-			'headerItemPlural'             => __( 'items', 'side-cart' ),
-			'freeShippingProgressMessage'  => esc_html( $this->settings['free_shipping_message'] ),
-			'freeShippingSuccessMessage'   => esc_html( $this->settings['free_shipping_success_message'] ),
-			'i18n'                         => array(
-				'failedToUpdateCart'     => __( 'Failed to update cart', 'side-cart' ),
-				'itemRemovedFromCart'    => __( '%s removed from cart', 'side-cart' ),
-				'failedToRemoveItem'     => __( 'Failed to remove item', 'side-cart' ),
-				'quantityExceedsStock'   => __( 'Quantity exceeds stock limit', 'side-cart' ),
-				'failedToUpdateQuantity' => __( 'Failed to update quantity', 'side-cart' ),
-				'maximumQuantityReached' => __( 'Maximum quantity reached', 'side-cart' ),
-				'failedToIncreaseQty'    => __( 'Failed to increase quantity', 'side-cart' ),
-				'failedToDecreaseQty'    => __( 'Failed to decrease quantity', 'side-cart' ),
-				'couponApplied'          => __( 'Coupon applied successfully', 'side-cart' ),
-				'failedToApplyCoupon'    => __( 'Failed to apply coupon', 'side-cart' ),
-				'couponRemoved'          => __( 'Coupon removed', 'side-cart' ),
-				'failedToRemoveCoupon'   => __( 'Failed to remove coupon', 'side-cart' ),
-				'emptyCartConfirm'       => __( 'Are you sure you want to empty your cart?', 'side-cart' ),
-				'cartEmptied'            => __( 'Cart emptied', 'side-cart' ),
-				'failedToEmptyCart'      => __( 'Failed to empty cart', 'side-cart' ),
-				'undo'                   => __( 'Undo', 'side-cart' ),
-			),
-			'items'                        => $items,
-			'totalItems'              => $cart->get_cart_contents_count(),
-			'totalUniqueItems'        => count( $cart->get_cart() ),
-			'subtotal'                => html_entity_decode( $formatted_subtotal, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
-			'cartTotal'               => html_entity_decode( $formatted_total, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
-			'discountTotal'           => html_entity_decode( $formatted_discount, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
-			'discountAmount'          => (float) $discount_amount,
-			'currency'                => get_woocommerce_currency_symbol(),
-			'freeShippingThreshold'   => $free_shipping_threshold,
-			'cartUrl'                 => wc_get_cart_url(),
-			'checkoutUrl'             => wc_get_checkout_url(),
-			'storeApiNonce'           => wp_create_nonce( 'wc_store_api' ),
-			'storeApiBase'            => esc_url_raw( rest_url( 'wc/store/v1/' ) ),
-			'customTriggerSelector'   => $this->settings['custom_trigger_selector'],
-			'badgeCountMode'          => $this->settings['badge_count_mode'],
-			'stockStatusLabels'       => $stock_status_labels,
-			'appliedCoupons'          => $cart->get_applied_coupons(),
-			'toasts'                  => array(),
-			'lastError'               => null,
+		$state = array_merge(
+			$base,
+			array(
+				'items'                 => $items,
+				'totalItems'            => $cart->get_cart_contents_count(),
+				'totalUniqueItems'      => count( $cart->get_cart() ),
+				'subtotal'              => html_entity_decode( $formatted_subtotal, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+				'cartTotal'             => html_entity_decode( $formatted_total, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+				'discountTotal'         => html_entity_decode( $formatted_discount, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+				'discountAmount'        => (float) $discount_amount,
+				'freeShippingThreshold' => $free_shipping_threshold,
+				'appliedCoupons'        => $cart->get_applied_coupons(),
+			)
 		);
 
 		return apply_filters( 'scrt_interactivity_state', $state );
@@ -353,8 +308,31 @@ class Cart_Renderer {
 	 * @return array
 	 */
 	private function get_empty_state(): array {
-		// Compute stock status labels so refreshCart() works after an AJAX add-to-cart
-		// even when the cart was empty on page load.
+		return array_merge(
+			$this->build_base_state(),
+			array(
+				'items'                 => array(),
+				'totalItems'            => 0,
+				'totalUniqueItems'      => 0,
+				'subtotal'              => wc_price( 0 ),
+				'cartTotal'             => wc_price( 0 ),
+				'discountTotal'         => wc_price( 0 ),
+				'discountAmount'        => 0.0,
+				'freeShippingThreshold' => null,
+				'appliedCoupons'        => array(),
+			)
+		);
+	}
+
+	/**
+	 * Build the shared base state used by both get_initial_state() and get_empty_state().
+	 *
+	 * Contains all settings-derived, i18n, and config values that don't depend on
+	 * live cart contents.
+	 *
+	 * @return array
+	 */
+	private function build_base_state(): array {
 		$wc_stock_labels     = function_exists( 'wc_get_product_stock_status_options' ) ? wc_get_product_stock_status_options() : array();
 		$override            = ! empty( $this->settings['stock_status_label_override'] );
 		$stock_status_labels = array(
@@ -369,17 +347,25 @@ class Cart_Renderer {
 				: ( $wc_stock_labels['onbackorder'] ?? 'On backorder' ),
 		);
 
+		$continue_shopping     = $this->settings['continue_shopping'] ?? 'close';
+		$continue_shopping_url = '';
+		if ( 'shop' === $continue_shopping ) {
+			$continue_shopping_url = get_permalink( wc_get_page_id( 'shop' ) ) ?: wc_get_page_permalink( 'shop' );
+		} elseif ( 'custom' === $continue_shopping && ! empty( $this->settings['continue_shopping_url'] ) ) {
+			$continue_shopping_url = esc_url_raw( $this->settings['continue_shopping_url'] );
+		}
+
 		return array(
-			'isOpen'                       => false,
-			'isLoading'                    => false,
-			'autoOpen'                     => (bool) $this->settings['auto_open'],
-			'showItemCountInHeader'        => (bool) $this->settings['show_item_count_in_header'],
-			'drawerHeadingText'            => html_entity_decode( esc_html( $this->settings['drawer_heading_text'] ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
-			'headerItemSingular'           => __( 'item', 'side-cart' ),
-			'headerItemPlural'             => __( 'items', 'side-cart' ),
-			'freeShippingProgressMessage'  => esc_html( $this->settings['free_shipping_message'] ),
-			'freeShippingSuccessMessage'   => esc_html( $this->settings['free_shipping_success_message'] ),
-			'i18n'                         => array(
+			'isOpen'                      => false,
+			'isLoading'                   => false,
+			'autoOpen'                    => (bool) $this->settings['auto_open'],
+			'showItemCountInHeader'       => (bool) $this->settings['show_item_count_in_header'],
+			'drawerHeadingText'           => html_entity_decode( esc_html( $this->settings['drawer_heading_text'] ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+			'headerItemSingular'          => __( 'item', 'side-cart' ),
+			'headerItemPlural'            => __( 'items', 'side-cart' ),
+			'freeShippingProgressMessage' => esc_html( $this->settings['free_shipping_message'] ),
+			'freeShippingSuccessMessage'  => esc_html( $this->settings['free_shipping_success_message'] ),
+			'i18n'                        => array(
 				'failedToUpdateCart'     => __( 'Failed to update cart', 'side-cart' ),
 				'itemRemovedFromCart'    => __( '%s removed from cart', 'side-cart' ),
 				'failedToRemoveItem'     => __( 'Failed to remove item', 'side-cart' ),
@@ -396,26 +382,23 @@ class Cart_Renderer {
 				'cartEmptied'            => __( 'Cart emptied', 'side-cart' ),
 				'failedToEmptyCart'      => __( 'Failed to empty cart', 'side-cart' ),
 				'undo'                   => __( 'Undo', 'side-cart' ),
+				'openCart'               => __( 'Open cart', 'side-cart' ),
+				'closeCart'              => __( 'Close cart', 'side-cart' ),
 			),
-			'items'                        => array(),
-			'totalItems'              => 0,
-			'totalUniqueItems'        => 0,
-			'subtotal'                => wc_price( 0 ),
-			'cartTotal'               => wc_price( 0 ),
-			'discountTotal'           => wc_price( 0 ),
-			'discountAmount'          => 0.0,
-			'currency'                => get_woocommerce_currency_symbol(),
-			'freeShippingThreshold'   => null,
-			'cartUrl'                 => wc_get_cart_url(),
-			'checkoutUrl'             => wc_get_checkout_url(),
-			'storeApiNonce'           => wp_create_nonce( 'wc_store_api' ),
-			'storeApiBase'            => esc_url_raw( rest_url( 'wc/store/v1/' ) ),
-			'customTriggerSelector'   => $this->settings['custom_trigger_selector'],
-			'badgeCountMode'          => $this->settings['badge_count_mode'],
-			'stockStatusLabels'       => $stock_status_labels,
-			'appliedCoupons'          => array(),
-			'toasts'                  => array(),
-			'lastError'               => null,
+			'currency'               => get_woocommerce_currency_symbol(),
+			'currencyCode'           => get_woocommerce_currency(),
+			'locale'                 => str_replace( '_', '-', get_locale() ),
+			'cartUrl'                => wc_get_cart_url(),
+			'checkoutUrl'            => wc_get_checkout_url(),
+			'storeApiNonce'          => wp_create_nonce( 'wc_store_api' ),
+			'storeApiBase'           => esc_url_raw( rest_url( 'wc/store/v1/' ) ),
+			'customTriggerSelector'  => $this->settings['custom_trigger_selector'],
+			'badgeCountMode'         => $this->settings['badge_count_mode'],
+			'stockStatusLabels'      => $stock_status_labels,
+			'toasts'                 => array(),
+			'lastError'              => null,
+			'continueShoppingAction' => $continue_shopping,
+			'continueShoppingUrl'    => $continue_shopping_url,
 		);
 	}
 

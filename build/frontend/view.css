@@ -463,6 +463,11 @@
   outline: none;
 }
 
+.scrt-qty-input:focus-visible {
+  outline: 2px solid var(--scrt-primary);
+  outline-offset: 1px;
+}
+
 /* ============================================================
    Remove Button
    ============================================================ */
@@ -769,11 +774,12 @@
   border-left: 3px solid transparent;
 }
 
-.scrt-toast--success {
+.scrt-toast[data-type="success"] {
   border-left-color: var(--scrt-toast-success-accent);
 }
 
-.scrt-toast--error {
+.scrt-toast[data-type="error"],
+.scrt-toast[data-type="warning"] {
   border-left-color: var(--scrt-toast-error-accent);
 }
 

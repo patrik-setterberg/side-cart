@@ -46,6 +46,7 @@ $icon_svg = scrt_get_cart_icon_svg( $icon );
 	data-wp-interactive="side-cart"
 	data-wp-on--click="actions.toggle"
 	data-wp-bind--aria-expanded="state.isOpen"
+	data-wp-bind--aria-label="state.triggerAriaLabel"
 >
 	<?php if ( ! empty( $icon ) ) : ?>
 		<span class="scrt-trigger__icon">

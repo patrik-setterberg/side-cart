@@ -161,7 +161,10 @@ class Assets {
 
 		foreach ( $color_map as $setting_key => $css_var ) {
 			if ( isset( $this->settings[ $setting_key ] ) && $this->settings[ $setting_key ] !== $defaults[ $setting_key ] ) {
-				$overrides[] = $css_var . ': ' . sanitize_hex_color( $this->settings[ $setting_key ] ) . ';';
+				$color = $this->rest_api->sanitize_hex_color_alpha( $this->settings[ $setting_key ] );
+				if ( $color ) {
+					$overrides[] = $css_var . ': ' . $color . ';';
+				}
 			}
 		}
 
@@ -185,17 +188,20 @@ class Assets {
 			}
 		}
 
-		// Text properties.
+		// Text properties — strip CSS block-breaking chars as a defence-in-depth measure.
 		if ( $this->settings['shadow'] !== $defaults['shadow'] ) {
-			$overrides[] = '--scrt-shadow: ' . sanitize_text_field( $this->settings['shadow'] ) . ';';
+			$overrides[] = '--scrt-shadow: ' . preg_replace( '/[{};]/', '', $this->settings['shadow'] ) . ';';
 		}
 
 		if ( $this->settings['font_family'] !== $defaults['font_family'] ) {
-			$overrides[] = '--scrt-font-family: ' . sanitize_text_field( $this->settings['font_family'] ) . ';';
+			$overrides[] = '--scrt-font-family: ' . preg_replace( "/[^a-zA-Z0-9\s,\-_'\"]/", '', $this->settings['font_family'] ) . ';';
 		}
 
 		if ( $this->settings['basket_radius'] !== $defaults['basket_radius'] ) {
-			$overrides[] = '--scrt-basket-radius: ' . sanitize_text_field( $this->settings['basket_radius'] ) . ';';
+			$safe_radius = preg_match( '/^\d+(\.\d+)?(px|rem|em|%|vw|vh)?$/', $this->settings['basket_radius'] )
+				? $this->settings['basket_radius']
+				: '50%';
+			$overrides[] = '--scrt-basket-radius: ' . $safe_radius . ';';
 		}
 
 		// Compat mode: force z-index.

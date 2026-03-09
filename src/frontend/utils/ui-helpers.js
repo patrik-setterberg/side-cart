@@ -13,6 +13,8 @@
  * @param {Object} state - The state object
  * @return {Object} Toast helper functions
  */
+const scheduledToastIds = new Set();
+
 export function createToastHelpers( state ) {
 	return {
 		/**
@@ -23,7 +25,7 @@ export function createToastHelpers( state ) {
 		 */
 		showToast( message, type = 'info', data = {} ) {
 			const toast = {
-				id: Date.now(),
+				id: crypto.randomUUID(),
 				message,
 				type,
 				...data,
@@ -50,7 +52,13 @@ export function createToastHelpers( state ) {
 			}
 
 			const latestToast = state.toasts[ state.toasts.length - 1 ];
+			if ( scheduledToastIds.has( latestToast.id ) ) {
+				return;
+			}
+
+			scheduledToastIds.add( latestToast.id );
 			setTimeout( () => {
+				scheduledToastIds.delete( latestToast.id );
 				state.toasts = state.toasts.filter(
 					( t ) => t.id !== latestToast.id
 				);
@@ -71,26 +79,23 @@ export function initFocusTrap( state ) {
 		return;
 	}
 
-	const focusableElements = drawer.querySelectorAll(
-		'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-	);
-
-	if ( focusableElements.length === 0 ) {
-		return;
-	}
-
-	const firstElement = focusableElements[ 0 ];
-	const lastElement =
-		focusableElements[ focusableElements.length - 1 ];
-
 	const trapFocus = ( event ) => {
-		if ( ! state.isOpen ) {
+		if ( ! state.isOpen || event.key !== 'Tab' ) {
 			return;
 		}
 
-		if ( event.key !== 'Tab' ) {
+		// Re-query on every keydown so references stay valid after refreshCart()
+		// replaces DOM nodes via data-wp-each.
+		const focusableElements = drawer.querySelectorAll(
+			'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+		);
+
+		if ( focusableElements.length === 0 ) {
 			return;
 		}
+
+		const firstElement = focusableElements[ 0 ];
+		const lastElement = focusableElements[ focusableElements.length - 1 ];
 
 		if ( event.shiftKey ) {
 			if ( document.activeElement === firstElement ) {
@@ -196,11 +201,9 @@ export function initCustomTriggers( state, openAction ) {
 		if ( badgeContainer ) {
 			const badge = document.createElement( 'span' );
 			badge.className = 'scrt-badge';
-			badge.setAttribute( 'data-wp-text', 'state.badgeCount' );
-			badge.setAttribute(
-				'data-wp-bind--hidden',
-				'state.badgeCount === 0'
-			);
+			badge.setAttribute( 'data-scrt-custom-badge', '' );
+			badge.textContent = state.badgeCount;
+			badge.hidden = state.badgeCount === 0;
 			badgeContainer.appendChild( badge );
 		}
 	} );

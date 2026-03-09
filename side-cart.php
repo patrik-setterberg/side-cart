@@ -48,10 +48,12 @@ function scrt_woocommerce_missing_notice(): void {
 	<div class="notice notice-error">
 		<p>
 			<?php
-			printf(
-				/* translators: %s: WooCommerce plugin link */
-				esc_html__( 'Side Cart requires %s to be installed and active.', 'side-cart' ),
-				'<a href="https://woocommerce.com/" target="_blank" rel="noopener noreferrer">WooCommerce</a>'
+			echo wp_kses_post(
+				sprintf(
+					/* translators: %s: WooCommerce plugin link */
+					__( 'Side Cart requires %s to be installed and active.', 'side-cart' ),
+					'<a href="https://woocommerce.com/" target="_blank" rel="noopener noreferrer">WooCommerce</a>'
+				)
 			);
 			?>
 		</p>

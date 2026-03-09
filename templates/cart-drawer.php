@@ -26,9 +26,11 @@ $drawer_classes = apply_filters(
 
 <div
 	data-wp-interactive="side-cart"
+	data-wp-init="callbacks.initCustomTriggers"
 	data-wp-watch="callbacks.watchOpen"
 	data-wp-on--keydown="actions.onKeydown"
 >
+	<span data-wp-watch="callbacks.syncCustomTriggerBadges" hidden></span>
 	<!-- Overlay -->
 	<div
 		class="scrt-overlay"
@@ -339,19 +341,10 @@ $drawer_classes = apply_filters(
 					<?php endif; ?>
 
 					<?php if ( $settings['show_continue_shopping'] ) : ?>
-						<?php
-						$continue_action = 'actions.close';
-						if ( 'shop' === $settings['continue_shopping'] ) {
-							$shop_url        = get_permalink( wc_get_page_id( 'shop' ) );
-							$continue_action = "window.location.href = '" . esc_url( $shop_url ) . "'";
-						} elseif ( 'custom' === $settings['continue_shopping'] && ! empty( $settings['continue_shopping_url'] ) ) {
-							$continue_action = "window.location.href = '" . esc_url( $settings['continue_shopping_url'] ) . "'";
-						}
-						?>
 						<button
 							class="scrt-button scrt-button--secondary"
 							type="button"
-							data-wp-on--click="<?php echo esc_attr( $continue_action ); ?>"
+							data-wp-on--click="actions.continueShopping"
 						>
 							<?php esc_html_e( 'Continue Shopping', 'side-cart' ); ?>
 						</button>
@@ -371,7 +364,8 @@ $drawer_classes = apply_filters(
 	<div class="scrt-toasts" aria-live="assertive" aria-atomic="true" data-wp-watch="callbacks.autoExpireToasts">
 		<template data-wp-each--toast="state.toasts">
 			<div
-				class="scrt-toast scrt-toast--<?php echo esc_attr( 'context.toast.type' ); ?>"
+				class="scrt-toast"
+				data-wp-bind--data-type="context.toast.type"
 				data-wp-key="context.toast.id"
 				role="alert"
 			>

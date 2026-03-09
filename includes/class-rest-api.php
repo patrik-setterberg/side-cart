@@ -71,6 +71,18 @@ class Rest_API {
 	}
 
 	/**
+	 * Sanitize a hex color, accepting 3, 6, or 8-character codes (with alpha).
+	 *
+	 * @param string $value Raw color value.
+	 * @return string Sanitized hex color or empty string.
+	 */
+	public function sanitize_hex_color_alpha( string $value ): string {
+		return preg_match( '/^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6}|[a-fA-F0-9]{8})$/', $value )
+			? $value
+			: '';
+	}
+
+	/**
 	 * Get plugin settings.
 	 *
 	 * @param \WP_REST_Request $request Request object.
@@ -88,8 +100,10 @@ class Rest_API {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function save_settings( $request ) {
-		$new_settings = $request->get_json_params();
-		$merged       = array_merge( $this->get_defaults(), $new_settings );
+		$defaults = $this->get_defaults();
+		$raw      = $request->get_params();                  // runs registered sanitize_callbacks
+		$allowed  = array_intersect_key( $raw, $defaults );  // drop any unknown keys
+		$merged   = array_merge( $defaults, $allowed );
 
 		update_option( self::OPTION_KEY, $merged );
 
@@ -308,39 +322,39 @@ class Rest_API {
 			),
 			'primary_color'                 => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'primary_hover_color'           => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'primary_text_color'            => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'drawer_bg_color'               => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'drawer_header_bg'              => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'drawer_footer_bg'              => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'text_color'                    => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'border_color'                  => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'overlay_color'                 => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'drawer_width'                  => array(
 				'type'              => 'integer',
@@ -360,11 +374,17 @@ class Rest_API {
 			),
 			'shadow'                        => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => function ( $value ) {
+					// Strip characters that break CSS block structure; allow box-shadow tokens.
+					return preg_replace( '/[{};]/', '', sanitize_text_field( $value ) );
+				},
 			),
 			'font_family'                   => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => function ( $value ) {
+					// Allow only characters valid in CSS font-family values.
+					return preg_replace( "/[^a-zA-Z0-9\s,\-_'\"]/", '', sanitize_text_field( $value ) );
+				},
 			),
 			'font_size'                     => array(
 				'type'              => 'integer',
@@ -380,11 +400,11 @@ class Rest_API {
 			),
 			'basket_bg'                     => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'basket_color'                  => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'basket_size'                   => array(
 				'type'              => 'integer',
@@ -396,15 +416,19 @@ class Rest_API {
 			),
 			'basket_radius'                 => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => function ( $value ) {
+					// Allow only valid CSS dimension/percentage values; fallback to default.
+					$value = sanitize_text_field( $value );
+					return preg_match( '/^\d+(\.\d+)?(px|rem|em|%|vw|vh)?$/', $value ) ? $value : '50%';
+				},
 			),
 			'badge_bg'                      => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'badge_color'                   => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'cart_icon'                     => array(
 				'type'              => 'string',
@@ -423,15 +447,15 @@ class Rest_API {
 			),
 			'toast_bg'                      => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'toast_color'                   => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 			'empty_state_color'             => array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => [ $this, 'sanitize_hex_color_alpha' ],
 			),
 
 			// Integrations
