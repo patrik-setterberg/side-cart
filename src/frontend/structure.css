@@ -248,7 +248,8 @@
   .scrt-qty-btn,
   .scrt-item__remove,
   .scrt-coupon__button,
-  .scrt-toast {
+  .scrt-toast,
+  .scrt-confirm {
     animation: none !important;
     transition: none !important;
   }

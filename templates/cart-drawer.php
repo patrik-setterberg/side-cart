@@ -217,15 +217,27 @@ $drawer_classes = apply_filters(
 			</div>
 
 			<?php if ( $settings['show_empty_cart_button'] ) : ?>
-				<div class="scrt-empty-cart-wrap" data-wp-bind--hidden="!state.hasItems">
+				<div class="scrt-empty-cart-wrap" data-wp-bind--hidden="!state.showEmptyCartButton">
 					<button
 						class="scrt-button scrt-button--text scrt-button--empty-cart"
 						type="button"
-						data-wp-on--click="actions.emptyCart"
+						data-wp-on--click="actions.requestEmptyCart"
 						data-wp-bind--disabled="state.isLoading"
 					>
 						<?php esc_html_e( 'Empty Cart', 'side-cart' ); ?>
 					</button>
+				</div>
+
+				<div class="scrt-confirm" data-wp-bind--hidden="!state.isConfirmingEmptyCart" role="alert">
+					<p class="scrt-confirm__message"><?php esc_html_e( 'Remove all items?', 'side-cart' ); ?></p>
+					<div class="scrt-confirm__actions">
+						<button class="scrt-button scrt-confirm__submit" type="button" data-wp-on--click="actions.confirmEmptyCart" data-wp-bind--disabled="state.isLoading">
+							<?php esc_html_e( 'Remove All', 'side-cart' ); ?>
+						</button>
+						<button class="scrt-button--secondary scrt-button scrt-confirm__cancel" type="button" data-wp-on--click="actions.cancelEmptyCart">
+							<?php esc_html_e( 'Cancel', 'side-cart' ); ?>
+						</button>
+					</div>
 				</div>
 			<?php endif; ?>
 

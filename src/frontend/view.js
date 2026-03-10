@@ -33,6 +33,10 @@ const { state, actions } = store( 'side-cart', {
 			return state.items && state.items.length > 0;
 		},
 
+		get showEmptyCartButton() {
+			return state.hasItems && ! state.isConfirmingEmptyCart;
+		},
+
 		get hasDiscount() {
 			return state.discountAmount > 0;
 		},
@@ -132,6 +136,7 @@ const { state, actions } = store( 'side-cart', {
 		close() {
 			startCloseAnimation();
 			state.isOpen = false;
+			state.isConfirmingEmptyCart = false;
 		},
 
 		continueShopping() {
@@ -144,6 +149,10 @@ const { state, actions } = store( 'side-cart', {
 
 		onKeydown( event ) {
 			if ( event.key === 'Escape' && state.isOpen ) {
+				if ( state.isConfirmingEmptyCart ) {
+					actions.cancelEmptyCart();
+					return;
+				}
 				actions.close();
 			}
 		},
@@ -491,11 +500,16 @@ const { state, actions } = store( 'side-cart', {
 			}
 		},
 
-		*emptyCart() {
-			if ( ! window.confirm( state.i18n.emptyCartConfirm ) ) {
-				return;
-			}
+		requestEmptyCart() {
+			state.isConfirmingEmptyCart = true;
+		},
 
+		cancelEmptyCart() {
+			state.isConfirmingEmptyCart = false;
+		},
+
+		*confirmEmptyCart() {
+			state.isConfirmingEmptyCart = false;
 			state.isLoading = true;
 
 			try {

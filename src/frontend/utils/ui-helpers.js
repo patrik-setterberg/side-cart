@@ -25,7 +25,7 @@ export function createToastHelpers( state ) {
 		 */
 		showToast( message, type = 'info', data = {} ) {
 			const toast = {
-				id: crypto.randomUUID(),
+				id: crypto.randomUUID?.() ?? ( Date.now().toString( 36 ) + Math.random().toString( 36 ).slice( 2 ) ),
 				message,
 				type,
 				...data,

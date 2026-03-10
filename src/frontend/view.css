@@ -34,7 +34,8 @@
 
   /* Buttons */
   --scrt-button-radius: 4px;
-  --scrt-button-padding: 12px 24px;
+  --scrt-button-padding-block: 10px;
+  --scrt-button-padding-inline: 16px;
   --scrt-button-font-size: 14px;
   --scrt-button-font-weight: 600;
 
@@ -593,7 +594,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--scrt-button-padding);
+  padding: var(--scrt-button-padding-block) var(--scrt-button-padding-inline);
   border-radius: var(--scrt-button-radius);
   font-size: var(--scrt-button-font-size);
   font-weight: var(--scrt-button-font-weight);
@@ -621,6 +622,7 @@
   background: transparent;
   color: var(--scrt-drawer-color);
   border: 1px solid var(--scrt-border);
+  padding-block: calc(var(--scrt-button-padding-block) - 1px);
 }
 
 .scrt-button--secondary:hover {
@@ -642,6 +644,68 @@
   display: flex;
   justify-content: center;
   margin-top: 1.25rem;
+}
+
+/* Inline empty-cart confirmation */
+.scrt-confirm {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--scrt-border);
+  border-radius: var(--scrt-button-radius);
+  padding: 12px;
+  margin-top: 1.25rem;
+  animation: scrt-confirm-reveal var(--scrt-transition-duration) ease-out;
+}
+
+.scrt-confirm[hidden] {
+  display: none;
+}
+
+.scrt-confirm__message {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--scrt-drawer-color);
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.scrt-confirm__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.scrt-confirm__cancel {
+  flex: 1;
+}
+
+.scrt-confirm__cancel:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.scrt-confirm__submit {
+  background: var(--scrt-drawer-color);
+  color: var(--scrt-drawer-bg);
+  border: none;
+  flex: 1;
+}
+
+.scrt-confirm__submit:hover {
+  background: var(--scrt-primary-hover);
+}
+
+@keyframes scrt-confirm-reveal {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding: 0 16px;
+    margin-top: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 120px;
+    padding: 16px;
+    margin-top: 1.25rem;
+  }
 }
 
 .scrt-button:disabled {
@@ -841,6 +905,11 @@
 
   .scrt-actions__secondary .scrt-button {
     flex: none;
+  }
+
+  .scrt-confirm__cancel,
+  .scrt-confirm__submit {
+    flex: 1;
   }
 }
 

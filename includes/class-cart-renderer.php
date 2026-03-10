@@ -379,7 +379,6 @@ class Cart_Renderer {
 				'failedToApplyCoupon'    => __( 'Failed to apply coupon', 'side-cart' ),
 				'couponRemoved'          => __( 'Coupon removed', 'side-cart' ),
 				'failedToRemoveCoupon'   => __( 'Failed to remove coupon', 'side-cart' ),
-				'emptyCartConfirm'       => __( 'Are you sure you want to empty your cart?', 'side-cart' ),
 				'cartEmptied'            => __( 'Cart emptied', 'side-cart' ),
 				'failedToEmptyCart'      => __( 'Failed to empty cart', 'side-cart' ),
 				'undo'                   => __( 'Undo', 'side-cart' ),
