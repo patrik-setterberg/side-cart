@@ -62,7 +62,7 @@ $icon_svg = scrt_get_cart_icon_svg( $icon );
 		<span
 			class="scrt-trigger__badge"
 			data-wp-text="state.badgeCount"
-			data-wp-bind--hidden="state.badgeCount === 0"
+			data-wp-bind--hidden="!state.totalItems"
 			data-scrt-badge
 		></span>
 	<?php endif; ?>

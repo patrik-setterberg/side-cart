@@ -588,6 +588,92 @@ const { state, actions } = store( 'side-cart', {
 				state.isLoading = false;
 			}
 		},
+
+		*addToCartFromForm( form ) {
+			const formData = new FormData( form );
+			const submitBtn = form.querySelector( '.single_add_to_cart_button' );
+
+			const variationId = parseInt( formData.get( 'variation_id' ), 10 );
+			// Simple products store the ID on the submit button (name="add-to-cart"),
+			// which FormData doesn't include without a submitter reference.
+			const productId = variationId ||
+				parseInt( formData.get( 'product_id' ), 10 ) ||
+				parseInt( formData.get( 'add-to-cart' ), 10 ) ||
+				parseInt( submitBtn?.value, 10 );
+			const quantity = parseInt( formData.get( 'quantity' ), 10 ) || 1;
+
+			if ( ! productId ) {
+				return;
+			}
+
+			// Variable product with no variation selected.
+			if ( formData.has( 'variation_id' ) && ! variationId ) {
+				actions.showToast( state.i18n.selectVariation, 'error' );
+				return;
+			}
+
+			// Build variation array for the Store API.
+			const variation = [];
+			for ( const [ key, value ] of formData.entries() ) {
+				if ( key.startsWith( 'attribute_' ) && value ) {
+					variation.push( {
+						attribute: key.replace( 'attribute_', '' ),
+						value,
+					} );
+				}
+			}
+
+			if ( submitBtn ) {
+				submitBtn.classList.add( 'scrt-adding-to-cart' );
+				submitBtn.disabled = true;
+			}
+
+			try {
+				const api = createCartApiRequests( {
+					storeApiBase: state.storeApiBase,
+					storeApiNonce: state.storeApiNonce,
+				} );
+
+				const response = yield fetch(
+					...api.addItem(
+						productId,
+						quantity,
+						variation.length ? variation : null
+					)
+				);
+
+				if ( ! response.ok ) {
+					const errorData = yield response.json();
+					throw new Error(
+						errorData.message || state.i18n.failedToAddToCart
+					);
+				}
+
+				const cart = yield response.json();
+				actions.updateStateFromCart( cart );
+
+				document.dispatchEvent(
+					new CustomEvent( 'scrt:item-added', {
+						detail: { productId, quantity },
+					} )
+				);
+
+				if ( state.autoOpen ) {
+					actions.open();
+				}
+			} catch ( error ) {
+				console.error( 'Side Cart: Failed to add to cart', error );
+				actions.showToast(
+					error.message || state.i18n.failedToAddToCart,
+					'error'
+				);
+			} finally {
+				if ( submitBtn ) {
+					submitBtn.classList.remove( 'scrt-adding-to-cart' );
+					submitBtn.disabled = false;
+				}
+			}
+		},
 	},
 
 	callbacks: {
@@ -637,3 +723,60 @@ if ( typeof jQuery !== 'undefined' ) {
 
 // WooCommerce Blocks add-to-cart (product blocks, All Products block, etc.).
 document.body.addEventListener( 'wc-blocks_added_to_cart', handleAddedToCart );
+
+/**
+ * Handle single product form submission via AJAX instead of page reload.
+ */
+function handleSingleProductFormSubmit( event ) {
+	if ( ! state.ajaxSingleAddToCart || ! state.autoOpen ) {
+		return;
+	}
+
+	const form = event.target;
+
+	// Already handled by another script (e.g. Flatsome, Woodmart).
+	if ( event.defaultPrevented ) {
+		return;
+	}
+
+	// Only intercept WooCommerce single product forms.
+	if ( ! form.classList.contains( 'cart' ) || ! form.closest( '.product' ) ) {
+		return;
+	}
+
+	// Skip grouped products (need N API calls — not supported in v1).
+	if ( form.querySelector( 'input[name^="quantity["]' ) ||
+		form.closest( '.product-type-grouped' ) ) {
+		return;
+	}
+
+	// Skip if submit button is disabled (e.g. no variation selected).
+	const submitBtn = form.querySelector( '.single_add_to_cart_button' );
+	if ( ! submitBtn || submitBtn.disabled || submitBtn.classList.contains( 'disabled' ) ) {
+		return;
+	}
+
+	// Skip forms with non-standard fields (add-ons, custom fields).
+	// Store API only supports id, quantity, variation.
+	const formData = new FormData( form );
+	const standardFields = new Set( [
+		'product_id', 'variation_id', 'quantity', 'add-to-cart',
+	] );
+	let hasCustomFields = false;
+	for ( const key of formData.keys() ) {
+		if ( key.startsWith( 'attribute_' ) ) continue;
+		if ( key.startsWith( '_' ) ) continue; // WP nonces, referer
+		if ( standardFields.has( key ) ) continue;
+		hasCustomFields = true;
+		break;
+	}
+	if ( hasCustomFields ) {
+		return;
+	}
+
+	event.preventDefault();
+	actions.addToCartFromForm( form );
+}
+
+// AJAX add-to-cart on single product pages.
+document.addEventListener( 'submit', handleSingleProductFormSubmit );

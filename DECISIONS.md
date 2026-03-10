@@ -4,6 +4,29 @@ A running log of architectural decisions, research findings, and general thinkin
 
 ---
 
+## 2026-03-10 — AJAX add-to-cart on single product pages
+
+**Decision:** Intercept the WooCommerce single product `<form class="cart">` submit, POST to the Store API (`wc/store/v1/cart/add-item`) instead, and open the drawer — no page reload.
+
+**Setting:** `ajax_single_add_to_cart` (default `true`), only active when `auto_open` is also ON. The state check lives inside the `submit` event handler, not at listener registration time, because the Interactivity API state isn't hydrated yet when the module initializes.
+
+**Scope boundaries — what we deliberately skip:**
+
+| Case | Reason |
+|---|---|
+| Grouped products | Submit `quantity[product_id]` for N children; Store API only accepts one item per request. Would need N sequential calls + partial-failure handling. |
+| Forms with custom fields (add-ons, etc.) | Store API `add-item` only supports `id`, `quantity`, `variation`. Extra fields would be silently dropped. |
+| Forms where `defaultPrevented` is already true | Another script (Flatsome, Woodmart, etc.) is handling it. |
+| Disabled submit button | WooCommerce disables the button when no variation is selected. |
+
+For skipped cases the native form submit fires normally (page reload).
+
+**Key implementation detail — `FormData` and simple products:**
+
+WooCommerce simple products put the product ID on the submit button (`<button name="add-to-cart" value="123">`). `new FormData(form)` without an explicit submitter does **not** include the button's name/value pair. The code falls back to reading `submitBtn.value` directly.
+
+---
+
 ## 2026-02-16 — Interactivity API as frontend framework
 
 **Decision:** Use the WordPress Interactivity API (requires WP 6.5+) for the cart drawer frontend instead of React or vanilla JS.

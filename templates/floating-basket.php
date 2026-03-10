@@ -32,7 +32,7 @@ $icon_svg       = scrt_get_cart_icon_svg( $settings['cart_icon'] );
 	<span
 		class="scrt-basket__badge"
 		data-wp-text="state.badgeCount"
-		data-wp-bind--hidden="state.badgeCount === 0"
+		data-wp-bind--hidden="!state.totalItems"
 		aria-label="<?php esc_attr_e( 'Items in cart', 'side-cart' ); ?>"
 	></span>
 </button>

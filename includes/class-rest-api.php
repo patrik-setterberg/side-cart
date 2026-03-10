@@ -486,6 +486,10 @@ class Rest_API {
 				'type'              => 'boolean',
 				'sanitize_callback' => 'rest_sanitize_boolean',
 			),
+			'ajax_single_add_to_cart'       => array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
 			'compat_mode'                   => array(
 				'type'              => 'boolean',
 				'sanitize_callback' => 'rest_sanitize_boolean',
@@ -610,6 +614,7 @@ class Rest_API {
 			'disabled_pages'                => array(),
 			'continue_shopping_url'         => '',
 			'override_cart_redirect'        => true,
+			'ajax_single_add_to_cart'       => true,
 			'compat_mode'                   => false,
 
 			// Advanced

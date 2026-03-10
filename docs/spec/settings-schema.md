@@ -139,8 +139,9 @@ $defaults = [
   'hide_on_checkout'       => true,
   'disabled_pages'         => [],     // array of page IDs
   'continue_shopping_url'  => '',     // custom URL used when continue_shopping = 'custom'
-  'override_cart_redirect' => true,   // prevent WC "redirect to cart" when side cart is active
-  'compat_mode'            => false,  // see notes below
+  'override_cart_redirect'  => true,   // prevent WC "redirect to cart" when side cart is active
+  'ajax_single_add_to_cart' => true,  // AJAX add-to-cart on single product pages; requires auto_open
+  'compat_mode'             => false, // see notes below
 
   // -------------------------------------------------------------------------
   // Advanced

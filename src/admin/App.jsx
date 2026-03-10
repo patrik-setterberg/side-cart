@@ -910,6 +910,19 @@ function IntegrationsTab({ settings, updateSetting }) {
             checked={settings.auto_open}
             onChange={(value) => updateSetting("auto_open", value)}
           />
+          {settings.auto_open && (
+            <ToggleControl
+              label={__("AJAX add-to-cart on product pages", "side-cart")}
+              help={__(
+                "Intercepts the single product form and adds to cart without a page reload.",
+                "side-cart",
+              )}
+              checked={settings.ajax_single_add_to_cart}
+              onChange={(value) =>
+                updateSetting("ajax_single_add_to_cart", value)
+              }
+            />
+          )}
           <ToggleControl
             label={__("Hide on cart page", "side-cart")}
             checked={settings.hide_on_cart_page}

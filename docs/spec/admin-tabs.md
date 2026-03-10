@@ -201,6 +201,7 @@ _"The default styles are active. Override them with CSS custom properties (e.g. 
 | Control | Type | Setting key | Notes |
 |---|---|---|---|
 | Auto-open on add-to-cart | Toggle | `auto_open` | |
+| AJAX add-to-cart on product pages | Toggle | `ajax_single_add_to_cart` | Only visible when `auto_open` is ON. Intercepts single product form and uses Store API instead of page reload. Does not apply to grouped products or products with third-party add-on fields. |
 | Hide on cart page | Toggle | `hide_on_cart_page` | |
 | Hide on checkout page | Toggle | `hide_on_checkout` | |
 | Disable on specific pages | Page picker | `disabled_pages` | Array of page IDs |
