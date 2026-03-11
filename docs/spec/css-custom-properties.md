@@ -126,8 +126,7 @@ These live in `side-cart-structure.css` and are always loaded, even when the plu
 
 | Property | Default | Notes |
 |---|---|---|
-| `--scrt-empty-color` | `#999999` | Empty state text and icon color |
-| `--scrt-empty-icon-size` | `48px` | Empty state icon size |
+| `--scrt-empty-color` | `#999999` | Empty state text color |
 
 ---
 

@@ -351,10 +351,6 @@ msgid "Success message"
 msgstr ""
 
 #: src/admin/App.jsx:385
-msgid "Show empty state icon"
-msgstr ""
-
-#: src/admin/App.jsx:392
 msgid "Empty state message"
 msgstr ""
 

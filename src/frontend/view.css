@@ -81,7 +81,6 @@
 
   /* Empty state */
   --scrt-empty-color: #999999;
-  --scrt-empty-icon-size: 48px;
 }
 
 /* ============================================================
@@ -435,13 +434,6 @@
   padding: 60px 20px;
   text-align: center;
   color: var(--scrt-empty-color);
-}
-
-.scrt-empty__icon {
-  width: var(--scrt-empty-icon-size);
-  height: var(--scrt-empty-icon-size);
-  margin-bottom: 16px;
-  opacity: 0.5;
 }
 
 .scrt-empty__message {

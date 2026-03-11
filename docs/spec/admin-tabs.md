@@ -55,7 +55,6 @@ Controls the core drawer behaviour and all content visibility toggles.
 | Show free shipping bar | Toggle | `show_free_shipping_bar` | Hidden automatically if no WC free shipping method is configured. Threshold read server-side from WC free shipping `min_amount`. |
 | Progress message | Text | `free_shipping_message` | Supports `{amount}` placeholder. Shown when threshold not yet reached. |
 | Success message | Text | `free_shipping_success_message` | Shown when threshold is reached |
-| Show empty state icon | Toggle | `show_empty_state_icon` | |
 | Empty state message | Text | `empty_state_message` | |
 
 ### Section: Cart Item

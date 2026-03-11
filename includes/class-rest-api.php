@@ -190,10 +190,6 @@ class Rest_API {
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			),
-			'show_empty_state_icon'         => array(
-				'type'              => 'boolean',
-				'sanitize_callback' => 'rest_sanitize_boolean',
-			),
 			'empty_state_message'           => array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
@@ -537,7 +533,6 @@ class Rest_API {
 			'show_free_shipping_bar'        => true,
 			'free_shipping_message'         => __( "You're {amount} away from free shipping!", 'side-cart' ),
 			'free_shipping_success_message' => __( "You've unlocked free shipping!", 'side-cart' ),
-			'show_empty_state_icon'         => true,
 			'empty_state_message'           => __( 'Your cart is empty.', 'side-cart' ),
 
 			// Cart Item

@@ -34,7 +34,6 @@ $defaults = [
   'show_free_shipping_bar'        => true,   // hidden automatically if no WC free shipping method configured
   'free_shipping_message'         => "You're {amount} away from free shipping!",
   'free_shipping_success_message' => "You've unlocked free shipping!",
-  'show_empty_state_icon'         => true,
   'empty_state_message'           => 'Your cart is empty.',
 
   // -------------------------------------------------------------------------

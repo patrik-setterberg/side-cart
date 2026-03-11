@@ -387,11 +387,6 @@ function GeneralTab({ settings, updateSetting }) {
               updateSetting("free_shipping_success_message", value)
             }
           />
-          <ToggleControl
-            label={__("Show empty state icon", "side-cart")}
-            checked={settings.show_empty_state_icon}
-            onChange={(value) => updateSetting("show_empty_state_icon", value)}
-          />
           <TextControl
             label={__("Empty state message", "side-cart")}
             value={settings.empty_state_message}
