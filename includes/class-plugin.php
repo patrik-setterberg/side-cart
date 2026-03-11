@@ -71,7 +71,7 @@ final class Plugin {
 
 		// Admin components.
 		if ( is_admin() ) {
-			new Admin();
+			new Admin( $rest_api );
 		}
 	}
 

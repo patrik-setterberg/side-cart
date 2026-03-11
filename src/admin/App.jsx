@@ -248,7 +248,13 @@ export default function App() {
                   <AdvancedTab
                     settings={settings}
                     updateSetting={updateSetting}
-                    onResetDefaults={loadSettings}
+                    onResetDefaults={() =>
+                      setSettings((prev) => ({
+                        ...window.scrtAdmin.defaults,
+                        license_key: prev.license_key,
+                        license_status: prev.license_status,
+                      }))
+                    }
                   />
                 )}
                 {tab.name === "license" && (
@@ -964,35 +970,6 @@ function IntegrationsTab({ settings, updateSetting }) {
 
 // Advanced Tab Component
 function AdvancedTab({ settings, updateSetting, onResetDefaults }) {
-  const [isResetting, setIsResetting] = useState(false);
-
-  const handleReset = async () => {
-    if (
-      !window.confirm(
-        __(
-          "Are you sure you want to reset all settings to defaults? This cannot be undone.",
-          "side-cart",
-        ),
-      )
-    ) {
-      return;
-    }
-
-    setIsResetting(true);
-    try {
-      await apiFetch({
-        path: "/side-cart/v1/settings",
-        method: "POST",
-        data: {},
-      });
-      onResetDefaults();
-    } catch (error) {
-      console.error("Failed to reset settings:", error);
-    } finally {
-      setIsResetting(false);
-    }
-  };
-
   return (
     <>
       <Card>
@@ -1016,16 +993,14 @@ function AdvancedTab({ settings, updateSetting, onResetDefaults }) {
           <h2>{__("Reset Settings", "side-cart")}</h2>
           <p>
             {__(
-              "Reset all settings to their default values. License information will be preserved.",
+              "Reset all settings to their default values. License information will be preserved. You'll still need to save for changes to take effect.",
               "side-cart",
             )}
           </p>
           <Button
             variant="secondary"
             isDestructive
-            onClick={handleReset}
-            isBusy={isResetting}
-            disabled={isResetting}
+            onClick={onResetDefaults}
           >
             {__("Reset to Defaults", "side-cart")}
           </Button>

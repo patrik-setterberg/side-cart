@@ -22,9 +22,19 @@ class Admin {
 	const PAGE_SLUG = 'side-cart';
 
 	/**
-	 * Constructor.
+	 * REST API instance.
+	 *
+	 * @var Rest_API
 	 */
-	public function __construct() {
+	private Rest_API $rest_api;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param Rest_API $rest_api REST API instance.
+	 */
+	public function __construct( Rest_API $rest_api ) {
+		$this->rest_api = $rest_api;
 		add_action( 'admin_menu', array( $this, 'register_menu_page' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 	}
@@ -108,12 +118,15 @@ class Admin {
 		);
 
 		// Pass settings to the React app.
+		$defaults = $this->rest_api->get_defaults();
+
 		wp_localize_script(
 			'side-cart-admin',
 			'scrtAdmin',
 			array(
-				'apiUrl' => esc_url_raw( rest_url( 'side-cart/v1' ) ),
-				'nonce'  => wp_create_nonce( 'wp_rest' ),
+				'apiUrl'   => esc_url_raw( rest_url( 'side-cart/v1' ) ),
+				'nonce'    => wp_create_nonce( 'wp_rest' ),
+				'defaults' => $defaults,
 			)
 		);
 	}
