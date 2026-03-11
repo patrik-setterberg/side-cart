@@ -28,7 +28,7 @@ $drawer_classes = apply_filters(
 	data-wp-interactive="side-cart"
 	data-wp-init="callbacks.initCustomTriggers"
 	data-wp-watch="callbacks.watchOpen"
-	data-wp-on--keydown="actions.onKeydown"
+	data-wp-on-document--keydown="actions.onKeydown"
 >
 	<span data-wp-watch="callbacks.syncCustomTriggerBadges" hidden></span>
 	<!-- Overlay -->
