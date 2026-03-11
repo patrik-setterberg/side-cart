@@ -64,6 +64,7 @@ $icon_svg = scrt_get_cart_icon_svg( $icon );
 			data-wp-text="state.badgeCount"
 			data-wp-bind--hidden="!state.totalItems"
 			data-scrt-badge
+			hidden
 		></span>
 	<?php endif; ?>
 </button>

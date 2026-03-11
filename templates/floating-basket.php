@@ -34,5 +34,6 @@ $icon_svg       = scrt_get_cart_icon_svg( $settings['cart_icon'] );
 		data-wp-text="state.badgeCount"
 		data-wp-bind--hidden="!state.totalItems"
 		aria-label="<?php esc_attr_e( 'Items in cart', 'side-cart' ); ?>"
+		hidden
 	></span>
 </button>
