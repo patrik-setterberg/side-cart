@@ -19,6 +19,55 @@ import {
 	initCustomTriggers,
 } from './utils/ui-helpers';
 
+/**
+ * Sync WooCommerce frontend elements after the side cart modifies the
+ * cart via Store API.
+ *
+ * Three systems need notifying:
+ * 1. WC Blocks shared cart store (Interactivity API) — powers the
+ *    `woocommerce/product-button` block ("X in cart" text).  The store
+ *    listens for `wc-blocks_store_sync_required` with type
+ *    `from_@wordpress/data` and calls its own `refreshCartItems()`.
+ * 2. Classic cart fragments (jQuery) — powers mini-cart widgets.
+ * 3. Classic "Add to cart" button DOM state — the `added` class and
+ *    "View cart" link that WC's `add-to-cart.js` adds but never removes.
+ *
+ * @param {Array} cartItems Current cart items (each needs a `productId` prop).
+ */
+function syncWcCart( cartItems ) {
+	// 1. Tell the WC Blocks shared Interactivity API store to re-fetch
+	//    the cart so reactive elements (product buttons, mini-cart block)
+	//    update their displayed quantities.
+	window.dispatchEvent(
+		new CustomEvent( 'wc-blocks_store_sync_required', {
+			detail: { type: 'from_@wordpress/data' },
+		} )
+	);
+
+	// 2–3. Classic (jQuery-based) WooCommerce elements.
+	if ( typeof jQuery !== 'undefined' ) {
+		const $ = jQuery;
+		const $body = $( document.body );
+
+		// Refresh cart fragments (mini-cart widgets, cart totals, etc.).
+		$body.trigger( 'wc_fragment_refresh' );
+
+		// Reset "added" state on archive/related-product buttons whose
+		// product is no longer in the cart.
+		const idsInCart = new Set(
+			cartItems.map( ( item ) => Number( item.productId ) )
+		);
+
+		$( '.add_to_cart_button.added' ).each( function () {
+			const productId = Number( $( this ).data( 'product_id' ) );
+			if ( ! idsInCart.has( productId ) ) {
+				$( this ).removeClass( 'added' );
+				$( this ).next( '.added_to_cart' ).remove();
+			}
+		} );
+	}
+}
+
 // Debounce state for quantity stepper buttons and the qty input.
 const quantityTimers = new Map(); // itemKey -> timerId
 const pendingQuantities = new Map(); // itemKey -> pending quantity
@@ -224,6 +273,8 @@ const { state, actions } = store( 'side-cart', {
 					{ undoItem }
 				);
 
+				syncWcCart( state.items );
+
 				// Dispatch custom event
 				document.dispatchEvent(
 					new CustomEvent( 'scrt:item-removed', {
@@ -365,6 +416,8 @@ const { state, actions } = store( 'side-cart', {
 				yield response.json(); // Consume the response
 				yield actions.refreshCart();
 
+				syncWcCart( state.items );
+
 				// Dispatch custom event
 				document.dispatchEvent(
 					new CustomEvent( 'scrt:item-quantity-changed', {
@@ -451,6 +504,8 @@ const { state, actions } = store( 'side-cart', {
 				const cart = yield response.json();
 				actions.updateStateFromCart( cart );
 
+				syncWcCart( state.items );
+
 				inputEl.value = '';
 				actions.showToast( state.i18n.couponApplied, 'success' );
 			} catch ( error ) {
@@ -487,6 +542,8 @@ const { state, actions } = store( 'side-cart', {
 
 				const cart = yield response.json();
 				actions.updateStateFromCart( cart );
+
+				syncWcCart( state.items );
 
 				actions.showToast( state.i18n.couponRemoved, 'success' );
 			} catch ( error ) {
@@ -526,6 +583,8 @@ const { state, actions } = store( 'side-cart', {
 
 				const cart = yield response.json();
 				actions.updateStateFromCart( cart );
+
+				syncWcCart( state.items );
 
 				actions.showToast( state.i18n.cartEmptied, 'success' );
 			} catch ( error ) {
@@ -592,6 +651,8 @@ const { state, actions } = store( 'side-cart', {
 
 				const cart = yield response.json();
 				actions.updateStateFromCart( cart );
+
+				syncWcCart( state.items );
 			} catch ( error ) {
 				console.error( 'Side Cart: Failed to undo remove', error );
 				actions.showToast(
@@ -665,6 +726,8 @@ const { state, actions } = store( 'side-cart', {
 
 				const cart = yield response.json();
 				actions.updateStateFromCart( cart );
+
+				syncWcCart( state.items );
 
 				document.dispatchEvent(
 					new CustomEvent( 'scrt:item-added', {
