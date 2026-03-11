@@ -84,8 +84,8 @@ These live in `side-cart-structure.css` and are always loaded, even when the plu
 
 | Property | Default | Notes |
 |---|---|---|
-| `--scrt-basket-size` | `56px` | Basket button width and height |
-| `--scrt-basket-icon-size` | `24px` | Basket icon width and height |
+| `--scrt-basket-size` | `48px` | Basket button width and height |
+| `--scrt-basket-icon-size` | `22px` | Basket icon width and height |
 | `--scrt-basket-bg` | `#111111` | Basket button background |
 | `--scrt-basket-color` | `#ffffff` | Basket icon color |
 | `--scrt-basket-radius` | `50%` | Basket button border radius |

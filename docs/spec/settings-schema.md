@@ -109,8 +109,8 @@ $defaults = [
   // Floating basket
   'basket_bg'        => '#111111',
   'basket_color'     => '#ffffff',
-  'basket_size'      => 56,   // px
-  'basket_icon_size' => 24,   // px
+  'basket_size'      => 48,   // px
+  'basket_icon_size' => 22,   // px
   'basket_radius'    => '50%',
 
   // Badge

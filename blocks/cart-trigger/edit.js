@@ -86,7 +86,7 @@ function ColorControl({ label, value, onChange }) {
             background: "#fff",
           }}
         >
-          <ColorPicker color={draft} onChange={setDraft} enableAlpha={false} />
+          <ColorPicker color={draft} onChange={setDraft} enableAlpha />
           <div style={{ display: "flex", gap: "8px", padding: "4px 8px 0" }}>
             <Button variant="primary" onClick={handleApply}>
               {__("Apply", "side-cart")}

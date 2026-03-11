@@ -50,8 +50,8 @@
   --scrt-quantity-input-width: 48px;
 
   /* Floating basket */
-  --scrt-basket-size: 56px;
-  --scrt-basket-icon-size: 24px;
+  --scrt-basket-size: 48px;
+  --scrt-basket-icon-size: 22px;
   --scrt-basket-bg: #111111;
   --scrt-basket-color: #ffffff;
   --scrt-basket-radius: 50%;
@@ -858,11 +858,6 @@
   .scrt-toast {
     min-width: auto;
     max-width: none;
-  }
-
-  .scrt-basket {
-    width: 48px;
-    height: 48px;
   }
 
   .scrt-shipping-bar {
